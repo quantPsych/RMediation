@@ -31,11 +31,10 @@
 #'   }
 #'
 #' @export
-#' @import purrr
+#' @import purrr dplyr mice
 #' @importFrom purrr map map_dfr
-#' @importFrom mice pool
-#' @importFrom mice complete
-#' @importFrom mice mice
+#' @importFrom dplyr select mutate bind_rows filter summarise group_by ungroup
+#' @importFrom mice pool mice complete
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @aliases pool.semMice pool_semMice
 #' @rdname pool_semMice
@@ -50,45 +49,72 @@ pool.semMice <- function(object, ...) {
     # This will require extracting relevant information from your mira object
     # and performing the pooling operation specific to mx_mice results
     pooled_results <- pooling_function(object)
-    return(pooled_results) }
-    else {
-      stop("Unsupported mira/semMice object type for pooling.")
-    }
+    return(pooled_results)
   }
-
-  pooling_function <- function(mira_object, ...) {
-    # Custom pooling logic for semMice results
-    # Similar to mx_mice, this depends on the structure of your semMice objects
-    # and the specific pooling operation needed for lav_mice results
-
-    # Extract the fitted models as a list from your mira object
-    fits <- mira_object[["analyses"]]
-    summary(fits[[1]])
-
-    # Extract the relevant information from your mira object
-    #Q_df <- fits |> purrr::map_df(coef)
-    Q_df <- fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
-    # Extract parameter estimates from each imputed dataset
-    Q_bar <- Q_df |> colMeans()
-
-    # Calculate the between-imputation variance
-    var_between <- cov(Q_df)
-    #extract covaraince mayrices as a list and average covaraince matrices
-    var_within <- fits |> lapply(vcov) |> reduce(`+`) / length(fits)
-
-    # total varaince according to Rubin's rule
-    var_total <-
-      var_within + var_between + (1 + 1 / length(fits)) * var_within
-
-    # Extract log-likelihoods and df from each imputed dataset
-    loglik_df <-
-      fits |> purrr::map(logLik) |> purrr::map_dfr(tidy) |> subset(select = "estimate")
-    # Calculate the average log-likelihood and df
-    logLik_bar <- loglik_df |> colMeans()
-
-    return(list(
-      Q_bar = Q_bar,
-      var_total = var_total,
-      logLik_bar = logLik_bar
-    ))
+  else {
+    stop("Unsupported mira/semMice object type for pooling.")
   }
+}
+
+pooling_function <- function(mira_object, ...) {
+  # Custom pooling logic for semMice results
+  # Similar to mx_mice, this depends on the structure of your semMice objects
+  # and the specific pooling operation needed for lav_mice results
+
+  # Extract the fitted models as a list from your mira object
+  fits <- mira_object$analyses
+
+  if (length(fits) == 0)
+    stop("No fitted models found in the mira object")
+
+  if (inherits(fits[[1]], "lavaan"))
+    return(lav_extract(fits))
+}
+
+#  # Extract the relevant information from your mira object
+#  #Q_df <- fits |> purrr::map_df(coef)
+#  Q_df <-
+#    fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
+#  # Extract parameter estimates from each imputed dataset
+#  Q_bar <- Q_df |> colMeans()
+#
+#  # Calculate the between-imputation variance
+#  var_between <- cov(Q_df)
+#  #extract covaraince mayrices as a list and average covaraince matrices
+#  var_within <- fits |> lapply(vcov) |> reduce(`+`) / length(fits)
+#
+#  # total varaince according to Rubin's rule
+#  var_total <-
+#    var_within + var_between + (1 + 1 / length(fits)) * var_within
+#
+#  # Extract log-likelihoods and df from each imputed dataset
+#  loglik_df <-
+#    fits |> purrr::map(logLik) |> purrr::map_dfr(tidy) |> subset(select = "estimate")
+#  # Calculate the average log-likelihood and df
+#  logLik_bar <- loglik_df |> colMeans()
+#
+#  return(list(
+#    Q_bar = Q_bar,
+#    var_total = var_total,
+#    logLik_bar = logLik_bar
+#  ))
+# }
+
+lav_extract <- function(fit) {
+  # Extract the relevant information from a lavaan object
+  # This function should be customized based on the structure of your lavaan objects
+  # and the specific information you need to extract for pooling
+
+  pooled_est <-
+    fit$analyses |>
+    purrr::map_dfr(broom.mixed::tidy, conf.int = TRUE, .id = "imp") |>
+    dplyr::select(estimate, term, label, std.error) |>
+    dplyr::group_by(term, label)  |>
+    dplyr::summarise(
+      q_est = mean(estimate),
+      bet_var = var(estimate),
+      w_var = sum(std.error ^ 2) / nimp
+    ) |> dplyr::ungroup() |>
+    dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
+  return(pooled_est)
+}
