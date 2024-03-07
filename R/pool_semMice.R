@@ -58,14 +58,14 @@ pooling_function <- function(mira_object, conf.int = FALSE, ...) {
   # Custom pooling logic for semMice results
   # Similar to mx_mice, this depends on the structure of your semMice objects
   # and the specific pooling operation needed for lav_mice results
-  
+
   # Extract the fitted models as a list from your mira object
   fits <- mira_object$analyses
-  
+
   if (length(fits) == 0) {
     stop("No fitted models found in the mira object")
   }
-  
+
   if (inherits(fits[[1]], "lavaan")) {
     return(lav_extract(fits, conf.int = conf.int))
   }
@@ -90,20 +90,19 @@ lav_extract <- function(fit, conf.int = conf.int) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
-  
+
   nimp <- length(fit)
-  res_list <-
-    fit |> purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp")
-  pooled_est <- res_list |>
-    dplyr::select('term', 'estimate', 'std.error', 'statistic', 'p.value') |>
-    dplyr::group_by('term') |>
+  pooled_est <- fit |>
+    purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp") |>
+    dplyr::select(term, label, estimate, std.error, statistic, p.value) |>
+    dplyr::group_by(term, label) |>
     dplyr::summarise(
       q_est = mean(estimate),
       bet_var = var(estimate),
-      w_var = sum(std.error ^ 2) / nimp
+      w_var = sum(std.error^2) / nimp
     ) |>
     ungroup() |>
     dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
-  
+
   return(pooled_est)
 }
