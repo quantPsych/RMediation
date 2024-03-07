@@ -101,8 +101,7 @@ lav_extract <- function(fit, conf.int = conf.int) {
       bet_var = var(estimate),
       w_var = sum(std.error^2) / nimp
     ) |>
-    ungroup() |>
+    dplyr::ungroup() |>
     dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
-
   return(pooled_est)
 }
