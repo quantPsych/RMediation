@@ -1,18 +1,19 @@
 #' Fit a structural equation model to multiply imputed data
 #'
 #' This function fits a structural equation model to multiply imputed data. It
-#' is an extension for the `lavaan::sem()` and `OpenMx::MxModel` functions to
-#' handle `mice::mids` objects from the `mice` package. It allows for both a
+#' is an extension for the [lavaan::sem()] and [OpenMx::MxModel] functions to
+#' handle [mice::mids] objects from the [mice] package. It allows for both a
 #' structural equation model syntax as a character string or a pre-fitted
-#' `lavaan` or `OpenMx` model object.
+#' `lavaan` or `OpenMx` model object. This function is a wrapper for the
+#' [lav_mice] and [mx_mice] functions.
 #'
 #' @param model Either a character string representing the structural equation
 #'  model to be fitted or a pre-fitted `lavaan` or `OpenMx` model object.
 #' @param mids A `mice::mids` object from the `mice` package.
-#' @param ... Additional arguments to be passed to `lavaan::sem()` or
-#' `OpenMx::mxRun`.
+#' @param ... Additional arguments to be passed to `[lavaan::sem]` or
+#' `[OpenMx::mxRun]`.
 #' @return A list of `lavaan` or `OpenMx` model fits, one for each imputed
-#' dataset.
+#' dataset. The class of the returned object is `lav` for lavaan /`mx` for `MxModel`, `semlist`, and `list`.
 #' @examples
 #' \dontrun{
 #' # library(mice)
@@ -45,19 +46,12 @@
 #' }
 #' @import mice
 #' @importFrom lavaan lavaan sem parameterEstimates
-#' @importFrom dplyr case_when
 #' @importFrom OpenMx mxModel mxRun
-#' @importFrom lavaan sem
-#' @importFrom OpenMx mxRun
-#' @importFrom mice complete
-#' @importFrom lavaan parameterEstimates
-#' @importFrom stats update
-#' @importFrom dplyr bind_rows select
+#' @importFrom mice complete as.mira
+#' @importFrom dplyr case_when
 #' @export
 #' @rdname sem_mice
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
-
-
 
 sem_mice <- function(model, mids, ...) {
     # Ensure 'mids' is a 'mids' object
