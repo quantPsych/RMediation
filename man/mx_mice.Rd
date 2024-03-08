@@ -28,7 +28,7 @@ from the 'mice' package. The function returns a list of \link[OpenMx:MxModel-cla
 data("HolzingerSwineford1939", package = "lavaan")
 # Introduce missing data
 df_complete <- na.omit(HolzingerSwineford1939)
-amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
+amp <- mice::ampute(df_complete, prop = 0.05, mech = "MAR")
 df_incomplete <- amp$amp
 # Perform multiple imputation
 imputed_data <- mice(df_incomplete, m = 3, method = "pmm", maxit = 5, seed = 12345)

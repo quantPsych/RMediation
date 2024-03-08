@@ -17,7 +17,7 @@
 #' data("HolzingerSwineford1939", package = "lavaan")
 #' # Introduce missing data
 #' df_complete <- na.omit(HolzingerSwineford1939)
-#' amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
+#' amp <- mice::ampute(df_complete, prop = 0.05, mech = "MAR")
 #' df_incomplete <- amp$amp
 #' # Perform multiple imputation
 #' imputed_data <- mice(df_incomplete, m = 3, method = "pmm", maxit = 5, seed = 12345)
@@ -58,7 +58,6 @@ mx_mice <- function(model, mids, ...) {
   }
 
   # Assuming myModel is your mxModel object and imxVerifyModel() is a conceptual verification function
-  # Note: This assumes imxVerifyModel() returns TRUE if the model is correct, otherwise FALSE
   verified <- OpenMx::imxVerifyModel(model)
   if (!verified) {
     stop("The mxModel object failed verification.")
@@ -66,9 +65,8 @@ mx_mice <- function(model, mids, ...) {
 
   # Extract complete imputed datasets
   dat_long <- complete(mids, action = "long")
-  # Split the data into a list of complete datasets and remove the .imp and .id columns from each dataset
-  # This is necessary because OpenMx::mxData() does not accept the .imp and .id columns
-  # The split function requires base R >= 4.1.0
+  # Split the data into a list of complete datasets and remove the .imp and .id columns from each dataset.
+  # This is necessary because OpenMx::mxData() does not accept the .imp and .id columns The split function requires base R >= 4.1.0
   data_complete <- dat_long |>
     base::split(~.imp) |>
     purrr::map(\(x) dplyr::select(x, -c(".imp", ".id")))
@@ -76,7 +74,7 @@ mx_mice <- function(model, mids, ...) {
   mx_results <- data_complete |> purrr::map(\(df) {
     mxDataObj <- OpenMx::mxData(df, type = "raw")
     updatedModel <- OpenMx::mxModel(model, mxDataObj)
-    OpenMx::mxRun(updatedModel)
+    OpenMx::mxRun(updatedModel, ...)
   })
   # Convert the list of OpenMx model fits to a mira object
   mx_results <- mice::as.mira(mx_results)

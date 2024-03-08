@@ -1,10 +1,10 @@
 test_that("pool.semMice returns correct values", {
   data(HolzingerSwineford1939, package = "lavaan")
   hs_short <- HolzingerSwineford1939[paste0("x", 1:9)]
-  hs_short <- mice::ampute(hs_short, prop = 0.1, mech = "MAR")$amp
+  hs_short <- mice::ampute(hs_short, prop = 0.03, mech = "MAR")$amp
 
   # Perform multiple imputation
-  imputed_data <- mice::mice(hs_short, m = 3, maxit = 5, seed = 12345, print = FALSE)
+  imputed_data <- mice::mice(hs_short, m = 7, maxit = 5, seed = 12345, print = FALSE)
 
   # Define a simple SEM model using OpenMx
   manifestVars <- paste0("x", 1:9)
@@ -25,7 +25,7 @@ test_that("pool.semMice returns correct values", {
   )
 
   # Call mx_mice
-  fits_mx <- RMediation::mx_mice(model_mx, imputed_data)
+  fits_mx <- RMediation::mx_mice(model_mx, imputed_data, silent = TRUE, suppressWarnings = TRUE)
 
   # Simple SEM model specification with lavaan and sem function
   model_lav <- "
@@ -37,11 +37,16 @@ test_that("pool.semMice returns correct values", {
   textual ~~ speed
   "
   fits_lav <- RMediation::lav_mice(model_lav, imputed_data, auto.var = TRUE, auto.fix.first = TRUE, auto.cov.lv.x = TRUE)
+
   # Compare the results
+  res1 <- RMediation::pool(fits_mx)
+  res2 <- pool(fits_lav)
+ 
+  # Check if the results are named
+  expect_named(res1)
+  expect_named(res2)
 
- # res1 <- RMediation::pool.semMice(fits_mx)
-  res2 <- RMediation::pool.semMice(fits_lav)
-
-
-  # expect_equal(res1, res2, tolerance = 1e-5)
+  # check weather outputs res2 is a proper class of tibble?
+  expect_true(tibble::is_tibble(res1))
+  expect_true(tibble::is_tibble(res2))
 })

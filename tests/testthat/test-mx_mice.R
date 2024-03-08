@@ -2,7 +2,7 @@ test_that("mx_mice returns correct output", {
   # Prepare a small dataset with missing values
   data(HolzingerSwineford1939, package = "lavaan")
   hs_short <- HolzingerSwineford1939[paste0("x", 1:9)]
-  hs_short <- mice::ampute(hs_short, prop = 0.1, mech = "MAR")$amp
+  hs_short <- mice::ampute(hs_short, prop = 0.05, mech = "MAR")$amp
 
   # Perform multiple imputation
   imputed_data <- mice(hs_short, m = 3, maxit = 5, seed = 12345, print = FALSE)

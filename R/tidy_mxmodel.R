@@ -1,8 +1,8 @@
 #' Tidy an MxModel Object
 #'
-#' Extracts parameter estimates from an OpenMx model and formats them into a tidy dataframe.
+#' Extracts parameter estimates from an [MxModel] from the [OpenMx] model and formats them into a tidy dataframe.
 #'
-#' @param model An object of class `MxModel` resulting from an SEM fit using OpenMx.
+#' @param model An object of class [MxModel] resulting from an SEM fit using OpenMx.
 #' @param conf.int Logical, whether to include confidence intervals in the output.
 #' @param conf.level The confidence level to use for the confidence intervals.
 #' @param ... Additional arguments (currently not used).
@@ -15,6 +15,7 @@
 #' @importFrom stats qnorm pnorm
 #' @name tidy.MxModel
 #' @rdname tidy_MxModel
+#' @seealso [OpenMx] [MxModel] [summary.MxModel]
 #' @examples
 #' \dontrun{
 #' # Load Holzinger and Swineford (1939) dataset

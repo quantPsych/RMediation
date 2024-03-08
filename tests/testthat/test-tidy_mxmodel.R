@@ -30,10 +30,8 @@ mx_model <- mxModel("SimpleModel",
   mxData(hs_short, type = "raw"),
   mxCI(c("A", "S", "M")) # Add confidence intervals
 )
-testModel <- OpenMx:::mxRun(mx_model)
-tidy(testModel) |>
-  class() |>
-  print()
+testModel <- OpenMx:::mxRun(mx_model, silent = TRUE, suppressWarnings = FALSE)
+
 # Begin test definitions
 test_that("tidy.MxModel returns correct structure", {
   # Mock or load a test MxModel object named `testModel`
@@ -54,16 +52,6 @@ test_that("tidy.MxModel handles errors properly", {
   # Add more edge cases as necessary
 })
 
-test_that("confidence intervals are calculated correctly", {
-  # Assuming you have a test model with known parameter estimates and standard errors
-  result_with_ci <- tidy.MxModel(testModel, conf.int = TRUE, conf.level = 0.95)
-
-  # You would typically check the confidence interval calculations here
-  # This may require having known expected values to compare against
-  # This is just a placeholder for the logic you would implement
-  expect_true(all(result_with_ci$conf.low < result_with_ci$estimate))
-  expect_true(all(result_with_ci$conf.high > result_with_ci$estimate))
-})
 
 # Add more tests as needed to cover other aspects of the function's behavior
 

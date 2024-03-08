@@ -14,6 +14,7 @@
 #' @seealso \code{\link[stats]{logLik}}
 #' @importFrom stats logLik
 #' @importFrom generics tidy
+#' @importFrom tibble tibble
 #' @export
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @examples
@@ -21,14 +22,16 @@
 #' logLik_fit <- logLik(fit)
 #' tidy(logLik_fit)
 tidy.logLik <- function(x, ...) {
+  # Extract the log-likelihood value and the degrees of freedom
+  stopifnot(inherits(x, "logLik"))
+  
   logLik_value <- as.numeric(x)
   df <- attr(x, "df")
 
-  tidy_df <- data.frame(
+  tidy_df <- tibble::tibble(
     term = "logLikelihood",
     estimate = logLik_value,
-    df = df,
-    stringsAsFactors = FALSE
+    df = df
   )
 
   return(tidy_df)

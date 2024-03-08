@@ -42,7 +42,6 @@
 #' fit_list2 <- lav_mice(fit_HS, imputed_data)
 #' # 'fit_list2' now contains a list of lavaan objects, one for each imputed dataset
 #' }
-
 lav_mice <- function(model, mids, ...) {
   # Ensure 'mids' is a 'mids' object from the 'mice' package
   if (!inherits(mids, "mids")) {
@@ -50,7 +49,7 @@ lav_mice <- function(model, mids, ...) {
   }
 
   # Ensure 'model' is either a character string or a lavaan model object
-  ##if (!RMediation::is_valid_lav_syntax(model, mids$data)) {
+  ## if (!RMediation::is_valid_lav_syntax(model, mids$data)) {
   ##  stop("The model is not a valid lavaan model syntax.")
   ## }
   # Determine if 'model' is a character string or a lavaan model
