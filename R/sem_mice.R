@@ -7,7 +7,7 @@ sem_mice <- function(model, mids, ...) {
 
     dplyr::case_when(
         inherits(model, "MxModel") ~ mx_mice(model, mids, ...),
-        RMediation::is_valid_lav_syntax(model, mids$data) ~ lav_mice(model, mids, ...),
+        is_lav_syntax(model, mids$data) ~ lav_mice(model, mids, ...),
         TRUE ~ stop("The model is not a valid lavaan or OpenMx model syntax.")
     )
 }
