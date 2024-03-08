@@ -2,8 +2,7 @@
 # library(OpenMx)
 
 # Mock an MxModel object if necessary
-# Here you would create a simple MxModel or mock one. This step depends on your testing setup
-# and whether you want to test with real models or mocked objects.
+# Here you would create a simple MxModel or mock one. This step depends on your testing setup and whether you want to test with real models or mocked objects.
 
 data(HolzingerSwineford1939, package = "lavaan")
 hs_short <- HolzingerSwineford1939[paste0("x", 1:9)]
@@ -34,8 +33,6 @@ testModel <- OpenMx:::mxRun(mx_model, silent = TRUE, suppressWarnings = FALSE)
 
 # Begin test definitions
 test_that("tidy.MxModel returns correct structure", {
-  # Mock or load a test MxModel object named `testModel`
-
   # Test without confidence intervals
   result <- RMediation::tidy(testModel, conf.int = FALSE)
   expect_true(inherits(result, "tbl"))

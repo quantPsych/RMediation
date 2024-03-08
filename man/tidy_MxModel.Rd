@@ -4,10 +4,10 @@
 \alias{tidy.MxModel}
 \title{Tidy an MxModel Object}
 \usage{
-\method{tidy}{MxModel}(model, conf.int = FALSE, conf.level = 0.95, ...)
+\method{tidy}{MxModel}(x, conf.int = FALSE, conf.level = 0.95, ...)
 }
 \arguments{
-\item{model}{An object of class \link{MxModel} resulting from an SEM fit using OpenMx.}
+\item{x}{An object of class \link{MxModel} resulting from an SEM fit using OpenMx.}
 
 \item{conf.int}{Logical, whether to include confidence intervals in the output.}
 
@@ -42,8 +42,9 @@ model <- mxModel("Simple SEM",
   mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
   mxData(HolzingerSwineford1939, type = "raw")
 )
+#
 # Fit the model
-fit0<- mxRun(model)
+fit0 <- mxRun(model)
 RMediation::tidy(fit0)
 }
 }
