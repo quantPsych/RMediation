@@ -5,7 +5,7 @@
 \alias{pool_semMice}
 \title{Pooling function for 'mira' objects of class 'semMice'}
 \usage{
-pool.semMice(object, ...)
+\method{pool}{semMice}(object, ...)
 }
 \arguments{
 \item{object}{An object of class 'mira' representing the results of fitting a SEM model to multiply imputed datasets}
