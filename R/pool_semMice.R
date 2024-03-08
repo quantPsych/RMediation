@@ -1,5 +1,5 @@
 #' Pooling function for 'mira' objects of class 'semMice'
-#' @param object An object of class 'mira' representing the results of fitting a SEM model to multiply imputed datasets
+#' @param x An object of class 'mira' representing the results of fitting a SEM model to multiply imputed datasets
 #' @param ... Additional arguments to be passed to the pooling function
 #' @return A pooled 'mira' object representing the pooled results of fitting a SEM model to multiply imputed datasets
 #' @examples
@@ -34,6 +34,7 @@
 #' @importFrom purrr map map_dfr
 #' @importFrom dplyr select mutate bind_rows filter summarise group_by ungroup
 #' @importFrom mice pool mice complete
+#' @importFrom rlang .data
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @aliases pool.semMice pool_semMice
 #' @rdname pool_semMice
@@ -41,13 +42,13 @@
 #' @seealso \code{\link{pool}}
 
 # Define the new S3 method for objects of class 'mira'
-pool.semMice <- function(object, ...) {
+pool.semMice <- function(x, ...) {
   # Check the specific type of 'mira' object (mx_mice or lav_mice results)
-  if (inherits(object, "semMice") && inherits(object, "mira")) {
+  if (inherits(x, "semMice") && inherits(x, "mira")) {
     # Handle pooling for mx_mice results
     # This will require extracting relevant information from your mira object
     # and performing the pooling operation specific to mx_mice results
-    pooled_results <- pooling_function(object)
+    pooled_results <- pooling_function(x)
     return(pooled_results)
   } else {
     stop("Unsupported mira/semMice object type for pooling.")
@@ -94,19 +95,19 @@ extract_lav <- function(fit, conf.int = conf.int) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
-
+  
   nimp <- length(fit)
   pooled_est <- fit |>
     purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp") |>
-    dplyr::select(term, estimate, std.error, statistic, p.value) |>
-    dplyr::group_by(term) |>
+    dplyr::select(.data$term, .data$estimate, .data$std.error, .data$statistic, .data$p.value) |>
+    dplyr::group_by(.data$term) |>
     dplyr::summarise(
-      q_est = mean(estimate),
-      bet_var = var(estimate),
-      w_var = sum(std.error^2) / nimp
+      q_est = mean(.data$estimate),
+      bet_var = var(.data$estimate),
+      w_var = sum(.data$std.error^2) / nimp
     ) |>
     dplyr::ungroup() |>
-    dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
+    dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
   return(pooled_est)
 }
 
@@ -118,15 +119,15 @@ extract_mx <- function(fit, conf.int = conf.int) {
   nimp <- length(fit)
   pooled_est <- fit |>
     purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
-    dplyr::select(term, estimate, std.error, statistic, p.value) |>
-    dplyr::group_by(term) |>
+    dplyr::select(.data$term, .data$estimate, .data$std.error, .data$statistic, .data$p.value) |>
+    dplyr::group_by(.data$term) |>
     dplyr::summarise(
-      q_est = mean(estimate),
-      bet_var = var(estimate),
-      w_var = sum(std.error^2) / nimp
+      q_est = mean(.data$estimate),
+      bet_var = var(.data$estimate),
+      w_var = sum(.data$std.error^2) / nimp
     ) |>
     dplyr::ungroup() |>
-    dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
+    dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
   return(pooled_est)
 }
 

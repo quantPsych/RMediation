@@ -2,7 +2,7 @@
 #'
 #' Extracts parameter estimates from an [MxModel] from the [OpenMx] model and formats them into a tidy dataframe.
 #'
-#' @param model An object of class [MxModel] resulting from an SEM fit using OpenMx.
+#' @param x An object of class [MxModel] resulting from an SEM fit using OpenMx.
 #' @param conf.int Logical, whether to include confidence intervals in the output.
 #' @param conf.level The confidence level to use for the confidence intervals.
 #' @param ... Additional arguments (currently not used).
@@ -10,6 +10,7 @@
 #'         standard errors, and optionally confidence intervals.
 #' @export
 #' @import OpenMx
+#' @importFrom rlang .data
 #' @importFrom dplyr mutate select rename
 #' @importFrom tibble tibble as_tibble
 #' @importFrom stats qnorm pnorm
@@ -36,35 +37,34 @@
 #'   mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
 #'   mxData(HolzingerSwineford1939, type = "raw")
 #' )
-#
+#' #
 #' # Fit the model
-#' fit0<- mxRun(model)
+#' fit0 <- mxRun(model)
 #' RMediation::tidy(fit0)
 #' }
-
 tidy.MxModel <-
-  function(model,
+  function(x,
            conf.int = FALSE,
            conf.level = 0.95,
            ...) {
     # Ensure the input is an OpenMx model
-    if (!inherits(model, "MxModel")) {
+    if (!inherits(x, "MxModel")) {
       stop("Input must be an MxModel object from OpenMx.")
     }
 
     # Extract parameter estimates
     tidy_df <-
-      summary(model)$parameters |>
-      dplyr::select(-contains("bound"), -row, -matrix) |>
+      summary(x)$parameters |>
+      dplyr::select(-contains("bound"), -.data$row, -.data$matrix) |>
       dplyr::rename(
-        term = name,
-        label = col,
-        estimate = Estimate,
-        std.error = Std.Error
+        term = .data$name,
+        label = .data$col,
+        estimate = .data$Estimate,
+        std.error = .data$Std.Error
       ) |>
       dplyr::mutate(
-        statistic = estimate / std.error,
-        p.value = 2 * pnorm(abs(statistic), lower.tail = FALSE)
+        statistic = .data$estimate / .data$std.error,
+        p.value = 2 * pnorm(abs(.data$statistic), lower.tail = FALSE)
       ) |>
       tibble::as_tibble()
 
@@ -73,8 +73,8 @@ tidy.MxModel <-
       q <- qnorm((1 + conf.level) / 2)
       tidy_df <- tidy_df |>
         dplyr::mutate(
-          conf.low = estimate - q * std.error,
-          conf.high = estimate + q * std.error
+          conf.low = .data$estimate - q * .data$std.error,
+          conf.high = .data$estimate + q * .data$std.error
         ) |>
         tibble::as_tibble()
     }
