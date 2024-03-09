@@ -35,14 +35,8 @@
 #' # Fit the SEM model without running the model
 #' fit_HS <- lavaan::sem(HS_model, data = data_with_missing, do.fit = FALSE)
 #' # Fit the SEM model without pooling to each imputed dataset
-#' fit_list1 <- sem_mice(HS_model, imputed_data)
-#' # 'fit_list1' now contains a list of lavaan objects, one for each imputed dataset
-#' # Fit the SEM model without pooling to each imputed dataset using a pre-fitted model object
-#' fit_list2 <- sem_mice(fit_HS, imputed_data)
-#'
-#' # Assuming mx_mice is correctly defined in your environment
-#' fits <- mx_mice(model, imputed_data)
-#' summary(fits[[1]])
+#' fit_list <- sem_mice(HS_model, imputed_data)
+#' fit_list <- dplyr::map_dfr(fit_list, coef, .id = "imputation") |> print()
 #' }
 #' @import mice
 #' @importFrom lavaan lavaan sem parameterEstimates
