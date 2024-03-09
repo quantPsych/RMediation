@@ -15,7 +15,6 @@
 #' @return A list of `lavaan` or `OpenMx` model fits, one for each imputed
 #' dataset. The class of the returned object is `lav` for lavaan /`mx` for `MxModel`, `semlist`, and `list`.
 #' @examples
-#' \dontrun{
 #' # library(mice)
 #' # library(lavaan)
 #' # Load Holzinger and Swineford (1939) dataset
@@ -37,7 +36,6 @@
 #' # Fit the SEM model without pooling to each imputed dataset
 #' fit_list <- sem_mice(HS_model, imputed_data)
 #' fit_list <- dplyr::map_dfr(fit_list, coef, .id = "imputation") |> print()
-#' }
 #' @import mice
 #' @importFrom lavaan lavaan sem parameterEstimates
 #' @importFrom OpenMx mxModel mxRun

@@ -28,7 +28,6 @@ structural equation model syntax as a character string or a pre-fitted
 \link{lav_mice} and \link{mx_mice} functions.
 }
 \examples{
-\dontrun{
 # library(mice)
 # library(lavaan)
 # Load Holzinger and Swineford (1939) dataset
@@ -50,7 +49,6 @@ fit_HS <- lavaan::sem(HS_model, data = data_with_missing, do.fit = FALSE)
 # Fit the SEM model without pooling to each imputed dataset
 fit_list <- sem_mice(HS_model, imputed_data)
 fit_list <- dplyr::map_dfr(fit_list, coef, .id = "imputation") |> print()
-}
 }
 \author{
 Davood Tofighi \email{dtofighi@gmail.com}
