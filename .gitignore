@@ -10,3 +10,4 @@ Meta
 .Rbuildignore
 .rmediation.Rptoj
 rmediation.Rproj
+.vscode/settings.json
