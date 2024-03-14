@@ -177,9 +177,6 @@ lav_mice <- function(model, mids, ...) {
   data_complete <- mice::complete(mids, action = "all")
   sem_results <-
     data_complete |> purrr::map(lavaan::sem, model = model, ...)
-  # Covert it to mice::mira object to be able to use pool function
-  ## sem_results <- mice::as.mira(sem_results)
-  # Return list of SEM model fits
   return(sem_results)
 }
 
@@ -195,14 +192,12 @@ mx_mice <- function(model, mids, ...) {
   # Extract complete imputed datasets
   data_complete <- mice::complete(mids, action = "all")
   # Fit the model to each imputed dataset
-  mx_results <- data_complete |> purrr::map(\(df) {
+  sem_results <- data_complete |> purrr::map(\(df) {
     mxDataObj <- OpenMx::mxData(df, type = "raw")
     updatedModel <- OpenMx::mxModel(model, mxDataObj)
     OpenMx::mxRun(updatedModel, ...)
   })
-  # Convert the list of OpenMx model fits to a mira object
-  ## mx_results <- mice::as.mira(mx_results)
-  return(mx_results)
+  return(sem_results)
 }
 
 
