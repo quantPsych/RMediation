@@ -4,23 +4,26 @@
 #' It contains pooled estimates, standard errors, test statistics, p-values, and confidence intervals
 #' for each parameter estimated across multiple imputations.
 #'
-#' @slot estimate numeric Vector of pooled parameter estimates.
-#' @slot std_error numeric Vector of pooled standard errors for each parameter estimate.
-#' @slot statistic numeric Vector of pooled test statistics (e.g., z-values, t-values) for each parameter.
-#' @slot p_value numeric Vector of pooled p-values for each parameter's test statistic.
-#' @slot conf_low numeric Vector of lower bounds of the confidence intervals for each parameter estimate.
-#' @slot conf_high numeric Vector of upper bounds of the confidence intervals for each parameter estimate.
+#' @slot results data.frame A data frame containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
+#'  - `term`: The name of the parameter being estimated.
+#' - `estimate`: The pooled estimate of the parameter.
+#' - `std.error`: The pooled standard error of the estimate.
+#' - `statistic`: The pooled test statistic (e.g., z-value, t-value).
+#' - `p.value`: The pooled p-value for the test statistic.
+#' - `conf.low`: The lower bound of the confidence interval for the estimate.
+#' - `conf.high`: The upper bound of the confidence interval for the estimate.
 #' @slot method character The method used for SEM analysis ('lavaan' or 'OpenMx').
 #' @export PooledSEMResults
 setClass(
     "PooledSEMResults",
     slots = c(
+        term = "character",
         estimate = "numeric",
-        std_error = "numeric",
+        std.error = "numeric",
         statistic = "numeric",
-        p_value = "numeric",
-        conf_low = "numeric",
-        conf_high = "numeric",
+        p.value = "numeric",
+        conf.low = "numeric",
+        conf.high = "numeric",
         method = "character"
     )
 )
@@ -29,14 +32,7 @@ setClass(
 #'
 #' @description Initializes a new PooledSEMResults object with given slot values.
 #' @param .Object PooledSEMResults The object to be initialized.
-#' @param estimates numeric Initial pooled parameter estimates.
-#' @param stdErrors numeric Initial pooled standard errors.
-#' @param statistics numeric Initial pooled test statistics.
-#' @param pValues numeric Initial pooled p-values.
-#' @param confLow numeric Initial lower bounds of the confidence intervals.
-#' @param confHigh numeric Initial upper bounds of the confidence intervals.
-#' @param method character The SEM analysis method.
-#' @return A PooledSEMResults object.
+
 setMethod("initialize", "PooledSEMResults", function(.Object, estimates, stdErrors, statistics, pValues, confLow, confHigh, method) {
     .Object@estimates <- estimates
     .Object@stdErrors <- stdErrors
