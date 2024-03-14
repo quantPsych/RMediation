@@ -53,3 +53,13 @@ imputed_data |> impute_sem(method = "lavaan") |> run_sem(model = model)
 
 imputed_data |> impute_sem(method = "lavaan") |> run_sem(model = model) |> pool_sem()
 ```
+
+```{r}
+data_complete <- mice::complete(imputed_data, action = "all")
+sem_results <-
+    data_complete |> purrr::map(lavaan::sem, model = model)
+# Covert it to mice::mira object to be able to use pool function
+sem_results <- mice::as.mira(sem_results) |> print()
+
+
+``` 
