@@ -159,15 +159,15 @@ setMethod("run_sem", "SemImputedData", function(object, model, conf.int = FALSE,
   if (!inherits(object@data, "mids")) {
     stop("'mids' must be a 'mids' object from the 'mice' package.")
   }
-  if (object@method == "lavaan") {
-    sem_list <- lav_mice(model, object@data, ...)
+  sem_list <- if (object@method == "lavaan") {
+    lav_mice(model, object@data, ...)
   } else if (object@method == "OpenMx") {
-    sem_list <- mx_mice(model, object@data, ...)
+    mx_mice(model, object@data, ...)
   } else {
     stop("Unsupported method specified in SemImputedData")
   }
   # Create a SemResults object with the collected SEM fits
-  sem_results_object <- new("SemResults", results = sem_list$analyses, method = object@method, conf.int = conf.int, conf.level = conf.level)
+  sem_results_object <- new("SemResults", results = sem_list, method = object@method, conf.int = conf.int, conf.level = conf.level)
 
   return(sem_results_object)
 })
