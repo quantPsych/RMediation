@@ -85,20 +85,20 @@ extract_lav <- function(fit,
     pooled_est <- fit |>
         purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp") |>
         dplyr::select(
-            .data$term,
-            .data$estimate,
-            .data$std.error,
-            .data$statistic,
-            .data$p.value
+            term,
+            estimate,
+            std.error,
+            statistic,
+            p.value
         ) |>
-        dplyr::group_by(.data$term) |>
+        dplyr::group_by(term) |>
         dplyr::summarise(
-            q_est = mean(.data$estimate),
-            bet_var = var(.data$estimate),
-            w_var = sum(.data$std.error^2) / nimp
+            q_est = mean(estimate),
+            bet_var = var(estimate),
+            w_var = sum(std.error^2) / nimp
         ) |>
         dplyr::ungroup() |>
-        dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
+        dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
     return(pooled_est)
 }
 ```
