@@ -172,7 +172,7 @@ setMethod("run_sem", "SemImputedData", function(object, model, conf.int = FALSE,
   return(sem_results_object)
 })
 
-lav_mice <- function(model, mids, ...) {
+lav_mice <- function(mids, model, ...) {
   # Extract complete imputed datasets
   data_complete <- mice::complete(mids, action = "all")
   sem_results <-
@@ -180,7 +180,7 @@ lav_mice <- function(model, mids, ...) {
   return(sem_results)
 }
 
-mx_mice <- function(model, mids, ...) {
+mx_mice <- function(mids, model, ...) {
   # Ensure 'mxModel' is an OpenMx model object
   if (!inherits(model, "MxModel")) {
     stop("'model' must be an 'MxModel' object from the 'OpenMx' package.")
