@@ -83,7 +83,7 @@ extract_lav <- function(fit,
 
     nimp <- length(fit)
     pooled_est <- fit |>
-        purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp") |>
+        purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
         dplyr::select(
             term,
             estimate,
@@ -105,6 +105,11 @@ extract_lav <- function(fit,
 
 ```{r}
 object <- sem_results
+
+sem_results$analyses[[1]] |> broom::tidy()
+
+object$results |>
+    purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp")
 
 object$results |>
     extract_lav()
