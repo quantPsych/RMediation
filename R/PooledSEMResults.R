@@ -33,30 +33,21 @@ setMethod("initialize", "PooledSEMResults", function(.Object, results, method) {
     return(.Object)
 })
 
-
-#' Validity Check for PooledSEMResults Class
-#'
-#' @description Checks the validity of a PooledSEMResults object ensuring all slot values are correct.
-#' @param object PooledSEMResults The object to check.
-#' @return TRUE if the object is valid, otherwise returns a character vector with error messages.
 setValidity("PooledSEMResults", function(object) {
     messages <- character(0)
 
-    if (length(object@estimates) != length(object@stdErrors) || length(object@estimates) != length(object@statistics) || length(object@estimates) != length(object@pValues)) {
-        messages <- c(messages, "Lengths of estimates, stdErrors, statistics, and pValues must be equal.")
+    # Check if results data frame contains all required columns
+    requiredColumns <- c("term", "estimate", "std.error", "statistic", "p.value", "conf.low", "conf.high")
+    if (!all(requiredColumns %in% colnames(object@results))) {
+        messages <- c(messages, "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value, conf.low, conf.high.")
     }
-    if (length(object@confLow) != length(object@confHigh)) {
-        messages <- c(messages, "Lengths of confLow and confHigh must be equal and match estimates.")
-    }
+
+    # Check if method is valid
     if (!object@method %in% c("lavaan", "OpenMx")) {
         messages <- c(messages, "Method must be either 'lavaan' or 'OpenMx'.")
     }
 
-    if (length(messages) == 0) {
-        return(TRUE)
-    } else {
-        return(messages)
-    }
+    if (length(messages) == 0) TRUE else messages
 })
 
 
