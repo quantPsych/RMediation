@@ -28,18 +28,14 @@ setClass(
     )
 )
 
-#' Initialize Method for PooledSEMResults Class
-#'
-#' @description Initializes a new PooledSEMResults object with given slot values.
-#' @param .Object PooledSEMResults The object to be initialized.
 
-setMethod("initialize", "PooledSEMResults", function(.Object, estimates, stdErrors, statistics, pValues, confLow, confHigh, method) {
-    .Object@estimates <- estimates
-    .Object@stdErrors <- stdErrors
-    .Object@statistics <- statistics
-    .Object@pValues <- pValues
-    .Object@confLow <- confLow
-    .Object@confHigh <- confHigh
+setMethod("initialize", "PooledSEMResults", function(.Object, estimate, std.error, statistic, p.value, conf.low, conf.high, method) {
+    .Object@estimate <- estimate
+    .Object@std.errorrror <- std.error
+    .Object@statistic <- statistic
+    .Object@p.value <- p.value
+    .Object@conf.low <- conf.low
+    .Object@conf.high <- conf.high
     .Object@method <- method
 
     validObject(.Object)
