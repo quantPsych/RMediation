@@ -23,3 +23,33 @@ library(OpenMx)
 ```
 
 
+
+```{r}
+data("HolzingerSwineford1939", package = "lavaan")
+# Introduce missing data
+df_complete <-
+    na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")])
+amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
+data_with_missing <- amp$amp
+
+# Perform multiple imputation
+imputed_data <-
+    mice::mice(
+        data_with_missing,
+        m = 3,
+        maxit = 3,
+        seed = 12345,
+        printFlag = FALSE
+    )
+sem_data <-
+    impute_sem(data = imputed_data, method = "lavaan")
+model <- "
+ visual  =~ x1 + x2 + x3
+ textual =~ x4 + x5 + x6
+ speed   =~ x7 + x8 + x9
+ "
+
+imputed_data |> impute_sem(method = "lavaan") |> run_sem(model = model)
+
+imputed_data |> impute_sem(method = "lavaan") |> run_sem(model = model) |> pool_sem()
+```
