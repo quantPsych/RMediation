@@ -109,7 +109,7 @@ object <- sem_results
 sem_results$analyses[[1]] |> broom::tidy()
 
 object$results |>
-    lapply(broom::tidy)
+    lapply(broom::tidy) |> names()
 
 object$results |>
     extract_lav()
