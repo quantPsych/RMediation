@@ -139,6 +139,11 @@ process_model_results <- function(model_results) {
     res_tidy_df <- model_results |>
         purrr::map_df(tidy, .id = "imp")
 
+    est_df <- model_results |>
+        dplyr::select(term, estimate) |>
+        
+        summarise(across(everything(), mean))
+
     # 1. Coefficient Estimates Data Frame
     coef_est_df <- map_dfr(model_results, lavaan::coef, .id = "imp") %>%
         group_by(imp) %>%
