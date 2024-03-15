@@ -93,7 +93,10 @@ res1 <- imputed_data |>
     run_sem(model = model)
 
 res1@results |>
-    purrr::map_df(tidy, .id = "imp") 
+    purrr::map_df(tidy, .id = "imp") |>
+    group_by(term)|>
+    summarise( estimate=mean(estimate)) |>
+    transpose()
 
 
 est_df <- res1@results |>
