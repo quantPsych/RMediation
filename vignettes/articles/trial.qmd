@@ -135,10 +135,8 @@ library(broom)
 process_model_results <- function(model_results) {
     # Assuming `model_results` is a list of lavaan or OpenMx model objects
 
-    model_results |>
-        purrr::map_df(tidy, .id = "imp") |>
-        group_by(imp) |>
-        nest()
+    res_tidy_df <- model_results |>
+        purrr::map_df(tidy, .id = "imp")
 
     # 1. Coefficient Estimates Data Frame
     coef_est_df <- map_dfr(model_results, lavaan::coef, .id = "imp") %>%
