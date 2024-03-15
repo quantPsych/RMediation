@@ -141,7 +141,7 @@ process_model_results <- function(model_results) {
         summarise(across(everything(), mean))
 
     # 2. Standard Errors Data Frame
-    std_errors_df <- map_dfr(model_results, ~ sqrt(diag(vcov(.x))), .id = "imp") %>%
+    std_errors_df <- map_dfr(model_results, \(x) sqrt(diag(lavaan::vcov(x))), .id = "imp") %>%
         group_by(imp) %>%
         summarise(across(everything(), mean))
 
