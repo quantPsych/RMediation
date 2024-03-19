@@ -4,7 +4,7 @@
 #' It contains pooled estimates, standard errors, test statistics, p-values, and confidence intervals
 #' for each parameter estimated across multiple imputations.
 #'
-#' @slot results data.frame A data frame containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
+#' @slot tidy_table data.frame A data frame containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
 #' - `term`: The name of the parameter being estimated.
 #' - `estimate`: The pooled estimate of the parameter.
 #' - `std.error`: The pooled standard error of the estimate.
@@ -31,12 +31,10 @@
 PooledSEMResults <- setClass(
   "PooledSEMResults",
   slots = c(
-    results = "data.frame",
-    coef_pool = "data.frame",
+    tidy_table = "data.frame",
     cov_total = "matrix",
     cov_between = "matrix",
     cov_within = "matrix",
-    std.error = "numeric",
     method = "character",
     n_imputations = "numeric",
     conf.int = "logical",
@@ -185,8 +183,8 @@ setGeneric(
 setMethod("pool_sem", "SemResults", function(object) {
   fit <- object@results
   if (object@method %in% c("lavaan", "OpenMx")) {
-    pooledData <-
-      extract_table(fit,
+    tidy_table <-
+      pool_tidy(fit,
         conf.int = object@conf.int,
         conf.level = object@conf.level
       )
@@ -200,7 +198,7 @@ setMethod("pool_sem", "SemResults", function(object) {
 
 
   PooledSEMResults(
-    results = pooledData,
+    tidy_table = tidy_table,
     cov_total = object@cov_total,
     cov_between = object@cov_between,
     cov_within = object@cov_within,
