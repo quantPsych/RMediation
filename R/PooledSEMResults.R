@@ -205,11 +205,9 @@ setMethod("pool_sem", "SemResults", function(object) {
 
   PooledSEMResults(
     results = pooledData,
-    coef_pool = object@coef_pool,
     cov_total = object@cov_total,
     cov_between = object@cov_between,
     cov_within = object@cov_within,
-    std.error = numeric(0),
     method = object@method,
     n_imputations = object@n_imputations,
     conf.int = object@conf.int,
