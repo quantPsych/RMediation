@@ -89,8 +89,9 @@ mock_lavaan_SemResults <- create_mock_SemResults(method = "lavaan")
 mock_OpenMx_SemResults <- create_mock_SemResults(method = "OpenMx")
 
 pooled_results_lavaan <- pool_sem(mock_lavaan_SemResults)
-
 pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
+
+pooled_results_lavaan@method
 # Test: pool_sem correctly processes SemResults from lavaan
 test_that("pool_sem works with lavaan SemResults", {
   pooled_results_lavaan <- pool_sem(mock_lavaan_SemResults)
