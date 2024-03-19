@@ -55,9 +55,12 @@ setValidity("SemImputedData", function(object) {
   #   messages <- c(messages, "'model' must be a character string, a 'lavaan' object, or an 'MxModel' object.")
   # }
 
-  if (!object@method %in% c("lavaan", "OpenMx")) {
-    messages <- c(messages, "'method' must be either 'lavaan' or 'OpenMx'.")
-  }
+  # if (!object@method %in% c("lavaan", "OpenMx")) {
+  #   messages <- c(messages, "'method' must be either 'lavaan' or 'OpenMx'.")
+  # }
+  # if (!object@method %in% c("lavaan", "OpenMx")) {
+  #   messages <- c(messages, "'method' must be either 'lavaan' or 'OpenMx'.")
+  # }
 
   if (!is.logical(object@conf.int) || length(object@conf.int) != 1) {
     messages <- c(messages, "'conf.int' must have single logical value.")
