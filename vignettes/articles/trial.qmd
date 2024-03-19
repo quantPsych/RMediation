@@ -115,7 +115,9 @@ slotNames(fit0)
 fit0@Options$do.fit
 
 fit@ParTable
+fit@vcov
 parTable(fit)
+parTable("vcov")
 
 lavInspect(fit, what = "data", add.labels = TRUE) |> head()
 lavNames(fit)
