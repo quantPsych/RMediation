@@ -238,7 +238,7 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 
 
 ### ----------------------------------------------------------------------------
-### Helper functions for run_sem method
+### Helper internal functions for run_sem method
 ### ----------------------------------------------------------------------------
 lav_mice <- function(data, model, ...) {
   # Extract complete imputed datasets
