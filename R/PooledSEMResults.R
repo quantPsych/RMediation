@@ -44,7 +44,7 @@ setValidity("PooledSEMResults", function(object) {
   messages <- character(0)
 
   # check if results is an empty data frame
-  if (!is.data.frame(object@results) || nrow(object@results) == 0 || ncol(object@results) == 0) {
+  if (!is.data.frame(object@tidy_table) || nrow(object@tidy_table) == 0 || ncol(object@results) == 0) {
     messages <-
       c(
         messages,
@@ -56,22 +56,14 @@ setValidity("PooledSEMResults", function(object) {
       "term",
       "estimate",
       "std.error",
-      "statistic",
       "p.value"
     )
   # Check for required columns
-  if (!all(requiredColumns %in% colnames(object@results))) {
+  if (!all(requiredColumns %in% colnames(object@tidy_table))) {
     messages <-
       c(
         messages,
-        "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value."
-      )
-  }
-  if (!is.data.frame(object@coef_pool) || nrow(object@coef_pool) == 0 || ncol(object@coef_pool) == 0) {
-    messages <-
-      c(
-        messages,
-        "The coef_pool must be a non-empty data frame."
+        "The results data frame must contain all required columns: term, estimate, std.error, p.value."
       )
   }
   # check if cov_total is a positive definite symmetric matrix
