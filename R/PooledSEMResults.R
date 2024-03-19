@@ -186,7 +186,7 @@ setGeneric(
 
 setMethod("pool_sem", "SemResults", function(object) {
   fit <- object@results
-  if (object@method %in% c("lavaan" , "OpenMx")) {
+  if (object@method %in% c("lavaan", "OpenMx")) {
     pooledData <-
       extract_table(fit,
         conf.int = object@conf.int,
@@ -198,7 +198,7 @@ setMethod("pool_sem", "SemResults", function(object) {
       object@method
     ))
   }
-#  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
+  #  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
 
 
   PooledSEMResults(
@@ -277,11 +277,11 @@ extract_mx <- function(fit,
   return(pooled_est)
 }
 
-pool_tidy <- function(x, conf.int = FALSE, conf.level = 0.95, n_imputations = NA_integer_) {
+pool_tidy <- function(object, conf.int = FALSE, conf.level = 0.95, n_imputations = NA_integer_) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
-
+  x <- object@estimate_df
   x |>
     dplyr::group_by(term) |>
     dplyr::summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / n_imputations), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
