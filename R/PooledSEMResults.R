@@ -282,7 +282,7 @@ pool_tidy <- function(object, conf.int = FALSE, conf.level = 0.95, n_imputations
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
   if (is.na(n_imputations) || !is.integer(n_imputations) || n_imputations < 1) {
-    n_imputations <- length(object)
+    n_imputations <- length(object@results)
   }
   x <- object@estimate_df
   x |>
