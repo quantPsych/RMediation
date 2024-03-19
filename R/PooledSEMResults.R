@@ -196,6 +196,7 @@ setMethod("pool_sem", "SemResults", function(object) {
   }
   #  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
 
+res_results <- pool_cov(object)
 
   PooledSEMResults(
     tidy_table = tidy_table,
@@ -294,6 +295,7 @@ pool_cov <- function(object) {
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
   # estimate cov within
+  # object: SemResults object
   cov_between <- object@coef_df |>
     dplyr::select(-.imp) |>
     cov()
