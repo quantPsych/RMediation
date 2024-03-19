@@ -74,12 +74,13 @@ setValidity("PooledSEMResults", function(object) {
         "The cov_total must be a symmetric positive definite matrix."
       )
   }
+
   if (length(messages) == 0) {
     TRUE
   } else {
-    messages
+    FALSE
+    stop(messages)
   }
-  
 })
 
 
