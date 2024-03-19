@@ -1,6 +1,6 @@
-#library(testthat)
+# library(testthat)
 # library(RMediation) # Replace with the name of your package
-#library(mice)
+# library(mice)
 
 # Test for successful creation of SemImputedData objects
 test_that("SemImputedData objects are created successfully with valid inputs", {
@@ -88,11 +88,13 @@ test_that("set_sem executes correctly with OpenMx models", {
       values = 0
     )
   )
-  # sem_data <-
-  set_sem(mx_model, data = imputed_data)
-
-
   # Check that the result is as expected
-  expect_no_error(sem_data <-
-    set_sem(mx_model, data = imputed_data))
+  expect_no_error(sem_data <- set_sem(mx_model, data = imputed_data))
+  expect_type(sem_data, "SemImputedData")
+  expect_equal(sem_data@method, "OpenMx")
+  expect_equal(sem_data@n_imputations, 3)
+  expect_equal(
+    sem_data@original_data,
+    mice::complete(imputed_data, action = 0L)
+  )
 })
