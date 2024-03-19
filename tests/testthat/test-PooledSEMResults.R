@@ -77,9 +77,9 @@ create_mock_SemResults <- function(method) {
   # Run the models
   # imp_sem <- set_sem(imputed_data, mx_model)
   res <- if (method == "lavaan") {
-    set_sem(imputed_data, mx_model) |> run_sem()
-  } else if (method == "OpenMx") {
     set_sem(imputed_data, lav_model) |> run_sem()
+  } else if (method == "OpenMx") {
+    set_sem(imputed_data, mx_model) |> run_sem()
   }
 
   return(res)
@@ -102,7 +102,7 @@ test_that("pool_sem works with lavaan SemResults", {
 
 # Test: pool_sem correctly processes SemResults from OpenMx
 test_that("pool_sem works with OpenMx SemResults", {
-  #pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
+  # pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
   expect_s3_class(pooled_results_OpenMx, "PooledSEMResults")
   expect_equal(pooled_results_OpenMx@method, "OpenMx")
   expect_true(is.data.frame(pooled_results_OpenMx@results))
