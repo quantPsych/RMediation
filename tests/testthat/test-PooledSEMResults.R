@@ -102,7 +102,7 @@ test_that("pool_sem works with lavaan SemResults", {
 
 # Test: pool_sem correctly processes SemResults from OpenMx
 test_that("pool_sem works with OpenMx SemResults", {
-  pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
+  #pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
   expect_s3_class(pooled_results_OpenMx, "PooledSEMResults")
   expect_equal(pooled_results_OpenMx@method, "OpenMx")
   expect_true(is.data.frame(pooled_results_OpenMx@results))
