@@ -189,15 +189,13 @@ setMethod("pool_sem", "SemResults", function(object) {
       object@method
     ))
   }
-  #  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
-
   cov_res <- pool_cov(object)
 
   PooledSEMResults(
     tidy_table = tidy_table,
-    cov_total = object@cov_total,
-    cov_between = object@cov_between,
-    cov_within = object@cov_within,
+    cov_total = cov_res[["cov_total"]],
+    cov_within = cov_res[["cov_within"]],
+    cov_between = cov_res[["cov_between"]],
     method = object@method,
     n_imputations = object@n_imputations,
     conf.int = object@conf.int,
