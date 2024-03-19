@@ -195,7 +195,6 @@ setMethod("pool_sem", "SemResults", function(object) {
     cov_within = cov_res[["cov_within"]],
     cov_between = cov_res[["cov_between"]],
     method = object@method,
-    n_imputations = object@n_imputations,
     conf.int = object@conf.int,
     conf.level = object@conf.level
   )
@@ -208,7 +207,7 @@ setMethod("pool_sem", "SemResults", function(object) {
 
 pool_tidy <- function(object) {
   ## Extract the relevant information from a SemResults object and return a tidy data frame
-  n_imputations <- object@n_imputations
+  n_imputations <- length(object@results)
   x <- object@estimate_df
   x |>
     dplyr::group_by(.data$term) |>
@@ -220,10 +219,11 @@ pool_tidy <- function(object) {
 
 pool_cov <- function(object) {
   ## Extract the relevant information from a SemResults object and return a list of covariance matrices
+  n_imputations <- length(object@results)
   cov_between <- object@coef_df |>
     dplyr::select(-.imp) |>
     cov()
-  cov_within <- Reduce("+", object@cov_df) / object@n_imputations
-  cov_total <- cov_between * (1 + 1 / object@n_imputations) + cov_within
+  cov_within <- Reduce("+", object@cov_df) / n_imputations
+  cov_total <- cov_between * (1 + 1 / n_imputations) + cov_within
   return(list(cov_total = cov_total, cov_between = cov_between, cov_within = cov_within))
 }

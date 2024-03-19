@@ -31,8 +31,6 @@ for each parameter estimated across multiple imputations.
 
 \item{\code{method}}{character The method used for SEM analysis ('lavaan' or 'OpenMx').}
 
-\item{\code{n_imputations}}{numeric The number of imputations or datasets used in the analysis.}
-
 \item{\code{conf.int}}{logical Whether to calculate confidence intervals for the pooled estimates. default is \code{FALSE}.}
 
 \item{\code{conf.level}}{numeric The confidence level used in the interval calculation. default is \code{0.95}.}
