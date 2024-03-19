@@ -97,7 +97,7 @@ test_that("pool_sem works with lavaan SemResults", {
   pooled_results_lavaan <- pool_sem(mock_lavaan_SemResults)
   expect_s4_class(pooled_results_lavaan, "PooledSEMResults")
   expect_equal(pooled_results_lavaan@method, "lavaan")
-  expect_true(is.data.frame(pooled_results_lavaan@results))
+  expect_true(is.data.frame(pooled_results_lavaan@tidy_table))
   # Additional checks on the structure and content of pooled_results_lavaan@results can be added here
 })
 
