@@ -1,7 +1,7 @@
 # library(testthat)
 # library(RMediation) # Replace with the actual name of your package
-# library(lavaan)
-# library(OpenMx)
+library(lavaan)
+library(OpenMx)
 # library(mice)
 
 # Mock data or a way to create SemResults objects for testing
@@ -76,7 +76,6 @@ create_mock_SemResults <- function(method) {
 
   # Run the models
   imp_sem <- set_sem(imputed_data, mx_model)
-
   res <- if (method == "lavaan") {
     run_sem(imp_sem, lav_model)
   } else if (method == "OpenMx") {
