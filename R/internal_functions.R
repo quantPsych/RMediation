@@ -26,10 +26,6 @@
 #' }
 #'
 #' @keywords internal
-#'
-#' @importFrom lavaan lavaan
-#' @importFrom OpenMx MxModel
-#'
 #' @noRd
 model_type <- function(model) {
     if (is.character(model)) {
