@@ -181,13 +181,8 @@ setGeneric(
 #' @aliases pool_sem
 
 setMethod("pool_sem", "SemResults", function(object) {
-  fit <- object@results
   if (object@method %in% c("lavaan", "OpenMx")) {
-    tidy_table <-
-      pool_tidy(fit,
-        conf.int = object@conf.int,
-        conf.level = object@conf.level
-      )
+    tidy_table <- pool_tidy(object)
   } else {
     stop(paste(
       "Unsupported method specified in SemResults:",
@@ -196,7 +191,7 @@ setMethod("pool_sem", "SemResults", function(object) {
   }
   #  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
 
-  res_results <- pool_cov(object)
+  cov_res <- pool_cov(object)
 
   PooledSEMResults(
     tidy_table = tidy_table,
