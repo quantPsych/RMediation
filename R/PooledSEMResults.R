@@ -294,6 +294,7 @@ pool_cov_total <- function(object) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
-  x <- object@cov_df
+  # estimate cov within
+  x <- cov(object@coef_df[-.imp])
   
 }
