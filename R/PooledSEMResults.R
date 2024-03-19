@@ -289,14 +289,15 @@ pool_tidy <- function(object, conf.int = FALSE, conf.level = 0.95, n_imputations
     dplyr::relocate(.data$term, .data$estimate, .data$std.error, .data$p.value, .data$var_b, .data$var_w, .data$var_tot)
 }
 
-pool_cov_total <- function(object) {
+pool_cov <- function(object) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
   # estimate cov within
-  cov_b <- object@coef_df |>
+  cov_between <- object@coef_df |>
     dplyr::select(-.imp) |>
     cov()
-  cov_w <- Reduce("+", object@cov_df)
-  cov_tot <- cov_b * (1 + 1 / object@n_imputations) + cov_w
+  cov_within <- Reduce("+", object@cov_df)
+  cov_total <- cov_between * (1 + 1 / object@n_imputations) + cov_within
+  return(list(cov_tot = cov_tot, cov_b = cov_b, cov_w = cov_w))
 }
