@@ -49,8 +49,9 @@ model_type <- function(model) {
 #' Extract the sampling covariance matrix from a lavaan object
 #' @param x A lavaan object
 #' @return A matrix
+#' @importFrom lavaan lavTech
 #' @keywords internal
 #' @noRd
 vcov_lav <- function(x) {
-    lavTech(x, what = "vcov", add.labels = TRUE) # This is useful
+    lavaan::lavTech(x, what = "vcov", add.labels = TRUE) # This is useful
 }
