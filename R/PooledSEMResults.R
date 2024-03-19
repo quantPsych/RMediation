@@ -198,6 +198,7 @@ setMethod("pool_sem", "SemResults", function(object) {
       object@method
     ))
   }
+#  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
 
 
   PooledSEMResults(
