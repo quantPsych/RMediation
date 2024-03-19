@@ -159,7 +159,7 @@ extract_lav <- function(fit,
 ```{r}
 # Produce SemResults object
 res1 <- imputed_data |>
-  set_sem(model) |>
+  set_sem(model_lav) |>
   run_sem()
 
 extract_lav(res1@results)
