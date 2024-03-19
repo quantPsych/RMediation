@@ -75,11 +75,11 @@ create_mock_SemResults <- function(method) {
   )
 
   # Run the models
-  imp_sem <- set_sem(imputed_data, mx_model)
+  # imp_sem <- set_sem(imputed_data, mx_model)
   res <- if (method == "lavaan") {
-    run_sem(imp_sem, lav_model)
+    set_sem(imputed_data, mx_model) |> run_sem()
   } else if (method == "OpenMx") {
-    run_sem(imp_sem, mx_model)
+    set_sem(imputed_data, lav_model) |> run_sem()
   }
 
   return(res)
