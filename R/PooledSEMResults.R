@@ -67,30 +67,19 @@ setValidity("PooledSEMResults", function(object) {
       )
   }
   # check if cov_total is a positive definite symmetric matrix
-  # if (!is.matrix(object@cov_total) || nrow(object@cov_total) == 0 || ncol(object@cov_total) == 0) {
-  #   messages <-
-  #     c(
-  #       messages,
-  #       "The cov_total must be a non-empty matrix."
-  #     )
-  # } else if (!isSymmetric(object@cov_total, tol = 1e-8)) {
-  #   messages <-
-  #     c(
-  #       messages,
-  #       "The cov_total must be a symmetric matrix."
-  #     )
-  # } else if (!is_pd(object@cov_total)) {
-  #   messages <-
-  #     c(
-  #       messages,
-  #       "The cov_total must be a positive definite matrix."
-  #     )
-  # }
-  # if (length(messages) == 0) {
-  #   TRUE
-  # } else {
-  #   messages
-  # }
+  if (!is_pd(object@cov_total)) {
+    messages <-
+      c(
+        messages,
+        "The cov_total must be a symmetric positive definite matrix."
+      )
+  }
+  if (length(messages) == 0) {
+    TRUE
+  } else {
+    messages
+  }
+  
 })
 
 
