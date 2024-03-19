@@ -178,7 +178,7 @@ extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
         summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
         dplyr::ungroup() |>
         dplyr::rename(estimate = est, std.error = se) |>
-        dplyr::location()
+        dplyr::location(term, estimate, std.error, p.value, var_b, var_w, var_tot)
     return(pooled_est)
 }
 ```
