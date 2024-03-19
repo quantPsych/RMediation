@@ -6,8 +6,7 @@
 #'
 #' @slot data An object of class `mids` from the `mice` package, representing multiply imputed datasets.
 #' @slot model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
-#' @slot method A character string indicating the SEM package to be used for analysis.
-#' Valid options are "lavaan" or "OpenMx". Defaults to "lavaan".
+#' @slot method A character string indicating the SEM package to be used for analysis. It is a derived slot from the `model` slot, and it is set automatically based on the class of the `model` slot. The possible values are "lavaan" or "OpenMx".
 #' @slot conf.int A logical value indicating whether confidence intervals are
 #'   included in the SEM results. Defaults to `FALSE`.
 #' @slot conf.level A numeric value specifying the confidence level for
