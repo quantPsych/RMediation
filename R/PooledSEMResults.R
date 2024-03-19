@@ -281,13 +281,16 @@ pool_tidy <- function(object, conf.int = FALSE, conf.level = 0.95, n_imputations
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
+  if (is.na(n_imputations) || !is.integer(n_imputations) || n_imputations < 1) {
+    n_imputations <- length(object)
+  }
   x <- object@estimate_df
   x |>
     dplyr::group_by(term) |>
-    dplyr::summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / n_imputations), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
+    dplyr::summarise(est = mean(.data$estimate), var_b = var(.data$estimate), var_w = mean(.data$std.error^2), var_tot = .data$var_w + .data$var_b * (1 + 1 / n_imputations), se = sqrt(.data$var_tot), p.value = exp(mean(log(.data$p.value)))) |>
     dplyr::ungroup() |>
-    dplyr::rename(estimate = est, std.error = se) |>
-    dplyr::relocate(term, estimate, std.error, p.value, var_b, var_w, var_tot)
+    dplyr::rename(estimate = .data$est, std.error = .data$se) |>
+    dplyr::relocate(.data$term, .data$estimate, .data$std.error, .data$p.value, .data$var_b, .data$var_w, .data$var_tot)
 }
 
 pool_cov_total <- function(object) {
@@ -296,7 +299,8 @@ pool_cov_total <- function(object) {
   # and the specific information you need to extract for pooling
   # estimate cov within
   cov_b <- object@coef_df |>
-    dplyr::select(select = -.imp) |>
+    dplyr::select(-.imp) |>
     cov()
   cov_w <- Reduce("+", object@cov_df)
+  cov_tot <- cov_b * (1 + 1 / object@n_imputations) + cov_w
 }
