@@ -131,12 +131,8 @@ setMethod("set_sem", "mids", function(data, model, conf.int = FALSE, conf.level 
     )
   }
 
-  if (!is_lav_syntax(model, quiet = TRUE) &&
-    !inherits(model, "lavaan") && !inherits(model, "MxModel")) {
-    stop(
-      "'model' must be a character string, a 'lavaan' object, or an 'mxModel' object.",
-      call. = FALSE
-    )
+  if (!(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel"))) {
+    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
   }
 
   if (!is.numeric(conf.level) ||
