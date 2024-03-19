@@ -13,10 +13,6 @@ pool_sem(object, ...)
 \item{object}{\code{SemResults} object with SEM analysis results.}
 
 \item{...}{Additional arguments for extensions.}
-
-\item{conf.int}{Logical; if TRUE, calculates confidence intervals.}
-
-\item{conf.level}{Confidence level for the intervals (default is 0.95).}
 }
 \value{
 \code{PooledSEMResults} object containing pooled SEM analysis results.

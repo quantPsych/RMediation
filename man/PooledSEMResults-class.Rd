@@ -13,26 +13,21 @@ for each parameter estimated across multiple imputations.
 \section{Slots}{
 
 \describe{
-\item{\code{results}}{data.frame A data frame containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
+\item{\code{tidy_table}}{data.frame A data frame containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
 \itemize{
 \item \code{term}: The name of the parameter being estimated.
 \item \code{estimate}: The pooled estimate of the parameter.
 \item \code{std.error}: The pooled standard error of the estimate.
-\item \code{statistic}: The pooled test statistic (e.g., z-value, t-value).
 \item \code{p.value}: The pooled p-value for the test statistic.
 \item \code{conf.low}: The lower bound of the confidence interval for the estimate.
 \item \code{conf.high}: The upper bound of the confidence interval for the estimate.
 }}
-
-\item{\code{coef_pool}}{data.frame A data frame containing the pooled estimates of the coefficients in the SEM model.}
 
 \item{\code{cov_total}}{matrix The pooled total covariance matrix of the parameter estimates.}
 
 \item{\code{cov_between}}{matrix The pooled between-imputation covariance matrix of the parameter estimates.}
 
 \item{\code{cov_within}}{matrix The pooled within-imputation covariance matrix of the parameter estimates.}
-
-\item{\code{std.error}}{numeric The pooled standard error of the parameter estimates.}
 
 \item{\code{method}}{character The method used for SEM analysis ('lavaan' or 'OpenMx').}
 
