@@ -151,11 +151,7 @@ setMethod("set_sem", "mids", function(data, model, conf.int = FALSE, conf.level 
   n_imputations <- data$m # number of imputations
   original_data <- mice::complete(data, action = 0L) # original data
   fit_model0 <- fit_model(model, original_data)
-  method <- if (inherits(fit_model0, "lavaan")) {
-    "lavaan"
-  } else {
-    "OpenMx"
-  }
+  method <- model_type(fit_model0)
 
   SemImputedData(
     data = data,
