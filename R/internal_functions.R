@@ -50,7 +50,7 @@ model_type <- function(model) {
 #' @param x A lavaan object
 #' @return A matrix
 #' @importFrom lavaan lavTech
-#' @keywords internal
+#' @keywords internal P
 #' @noRd
 vcov_lav <- function(x) {
     lavaan::lavTech(x, what = "vcov", add.labels = TRUE) # This is useful
