@@ -5,20 +5,17 @@
 \alias{pool_sem,SemResults-method}
 \title{Pool SEM Analysis Results}
 \usage{
-pool_sem(object, ...)
+pool_sem(object)
 
-\S4method{pool_sem}{SemResults}(object, ...)
+\S4method{pool_sem}{SemResults}(object)
 }
 \arguments{
 \item{object}{\code{SemResults} object with SEM analysis results.}
-
-\item{...}{Additional arguments for extensions.}
 }
 \value{
 \code{PooledSEMResults} object containing pooled SEM analysis results.
 
-A \code{data.frame} containing the pooled results of the SEM analyses. The
-column names adhere to tidy conventions and include the following columns:
+A \code{data.frame} containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
 \itemize{
 \item \code{term}: The name of the parameter being estimated.
 \item \code{estimate}: The pooled estimate of the parameter.
@@ -33,11 +30,12 @@ column names adhere to tidy conventions and include the following columns:
 \code{pool_sem} pools SEM analysis results, supporting \code{lavaan} and \code{OpenMx} models.
 It calculates pooled estimates, standard errors, confidence intervals, and more.
 
-This function pools the results of structural equation modeling (SEM) analyses
-performed on multiple imputed datasets. It supports pooling for models analyzed
-with either the \code{lavaan} or \code{OpenMx} package. The function extracts and pools
-relevant statistics (e.g., estimates, standard errors) across all imputations,
-considering the specified confidence interval settings.
+This function pools the results of structural equation modeling (SEM)
+analyses performed on multiple imputed datasets.
+It supports pooling for models analyzed with either the \code{lavaan}
+or \code{OpenMx} package.  The function extracts and pools
+relevant statistics (e.g., estimates, standard errors) across
+all imputations, considering the specified confidence interval settings.
 }
 \details{
 A generic function to pool SEM analysis results from multiple datasets or imputations.
@@ -45,11 +43,6 @@ A generic function to pool SEM analysis results from multiple datasets or imputa
 Refer to method-specific documentation for details on pooling process and assumptions.
 }
 \examples{
-\dontrun{
-# Assuming `sem_results` is a `SemResults` object with `lavaan` model fits:
-pooled_results <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
-print(pooled_results)
-}
 \dontrun{
 # Assuming `sem_results` is a SemResults object with lavaan model fits:
 pooled_results <- pool_sem(sem_results)
