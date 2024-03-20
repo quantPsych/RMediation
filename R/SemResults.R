@@ -178,6 +178,7 @@ setMethod("pool_sem", signature = "SemResults", function(object, ...) {
 ### ---------------------------------------------
 
 #' Pool Tidy Results
+#'
 #' @param object `SemResults` object with SEM analysis results.
 #' @return A `data.frame` containing the pooled results of the SEM analyses.
 #' @details This function extracts and pools relevant statistics (e.g., estimates, standard errors) across all imputations, considering the specified confidence interval settings.
@@ -224,6 +225,7 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
 
 
 #' Pool Covariance Matrices
+#'
 #' @param object `SemResults` object with SEM analysis results.
 #' @return A list of covariance matrices.
 #' @details This function extracts and pools relevant covariance matrices across all imputations.
