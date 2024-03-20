@@ -60,20 +60,23 @@ setValidity("SemResults", function(object) {
       c(messages, "method must be either 'lavaan' or 'OpenMx'.")
   }
   if (!is.logical(object@conf.int) ||
-      length(object@conf.int) != 1) {
+    length(object@conf.int) != 1) {
     messages <- c(messages, "conf.int must be a single logical value.")
   }
-  if (!is.numeric(object@conf.level) ||
+  if (object.conf.int) {
+    if (!is.numeric(object@conf.level) ||
       object@conf.level <= 0 || object@conf.level >= 1) {
-    messages <-
-      c(messages, "conf.level must be a numeric value between 0 and 1.")
+      messages <-
+        c(messages, "conf.level must be a numeric value between 0 and 1.")
+    }
   }
   # Add validations here based on the above corrections
 
-  if (length(messages) == 0)
+  if (length(messages) == 0) {
     TRUE
-  else
+  } else {
     messages
+  }
 })
 
 ### ============================================================================
@@ -113,11 +116,13 @@ setValidity("SemResults", function(object) {
 #' @seealso [lavaan], [OpenMx]
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
-setGeneric("pool_sem",
-           function(object,
-                    ...) {
-             standardGeneric("pool_sem")
-           })
+setGeneric(
+  "pool_sem",
+  function(object,
+           ...) {
+    standardGeneric("pool_sem")
+  }
+)
 
 #' Pool SEM Results from Multiple Imputations
 #'
@@ -152,8 +157,10 @@ setGeneric("pool_sem",
 
 setMethod("pool_sem", signature = "SemResults", function(object, ...) {
   if (!object@method %in% c("lavaan", "OpenMx")) {
-    stop("Unsupported method specified in SemResults: ",
-         object@method)
+    stop(
+      "Unsupported method specified in SemResults: ",
+      object@method
+    )
   }
 
   # Assuming pool_tidy and pool_cov are correctly implemented
@@ -186,10 +193,12 @@ setMethod("pool_sem", signature = "SemResults", function(object, ...) {
 #' @importFrom broom tidy
 #' @keywords internal
 #' @noRd
-setGeneric("pool_tidy",
-           function(object) {
-             standardGeneric("pool_tidy")
-           })
+setGeneric(
+  "pool_tidy",
+  function(object) {
+    standardGeneric("pool_tidy")
+  }
+)
 
 setMethod("pool_tidy", signature = "SemResults", function(object) {
   ## Extract the relevant information from a SemResults object and return a tidy data frame
@@ -200,7 +209,7 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
     dplyr::summarise(
       est = mean(.data$estimate),
       var_b = var(.data$estimate),
-      var_w = mean(.data$std.error ^ 2),
+      var_w = mean(.data$std.error^2),
       var_tot = .data$var_w + .data$var_b * (1 + 1 / n_imputations),
       se = sqrt(.data$var_tot),
       p.value = exp(mean(log(.data$p.value)))
@@ -217,7 +226,6 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
       .data$var_tot
     ) |>
     tibble::as_tibble()
-
 })
 
 
@@ -233,10 +241,12 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
 #' @importFrom broom tidy
 #' @importFrom stats cov
 
-setGeneric("pool_cov",
-           function(object) {
-             standardGeneric("pool_cov")
-           })
+setGeneric(
+  "pool_cov",
+  function(object) {
+    standardGeneric("pool_cov")
+  }
+)
 
 setMethod("pool_cov", signature = "SemResults", function(object) {
   ## Extract the relevant information from a SemResults object and return a list of covariance matrices
