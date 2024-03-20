@@ -27,15 +27,15 @@ SemResults <- setClass(
     method = "character",
     conf.int = "logical",
     conf.level = "numeric"
-    # ),
-    # prototype = list(
-    #   results = list(),
-    #   estimate_df = data.frame(),
-    #   coef_df = data.frame(),
-    #   cov_df = list(),
-    #   method = "lavaan",
-    #   conf.int = FALSE,
-    #   conf.level = 0.95
+  ),
+  prototype = list(
+    results = list(),
+    estimate_df = data.frame(),
+    coef_df = data.frame(),
+    cov_df = list(),
+    method = "lavaan",
+    conf.int = FALSE,
+    conf.level = 0.95
   )
 )
 
