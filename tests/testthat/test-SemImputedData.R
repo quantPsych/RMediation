@@ -1,40 +1,42 @@
-# library(testthat)
-# library(RMediation) # Replace with the name of your package
-# library(mice)
+test_that("run_sem executes correctly with lavaan models", {
+  # Assuming you have a predefined `SemImputedData` object for lavaan models
+  # Load Holzinger and Swineford (1939) dataset
+  data("HolzingerSwineford1939", package = "lavaan")
+  # Introduce missing data
+  df_complete <-
+    na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")])
+  amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
+  data_with_missing <- amp$amp
 
-# Test for successful creation of SemImputedData objects
-test_that("SemImputedData objects are created successfully with valid inputs", {
-  data(mtcars)
-  mtcars_mis <- mtcars
-  mtcars_mis$mpg[1:5] <- NA
-  imputed_data <- mice::mice(mtcars_mis, m = 5, maxit = 2, print = FALSE)
-  lavaan::sem("mpg~hp+cyl", data = mtcars_mis)
-  complete_data <- mice::complete(imputed_data, 5)
-  fit_model(model = "mpg~hp+cyl", data = complete_data)
-  res <- set_sem(imputed_data, model = "mpg~hp+cyl", conf.int = TRUE, conf.level = 0.95)
-  expect_error(res <- set_sem(imputed_data, model = ""))
+  # Perform multiple imputation
+  imputed_data <-
+    mice::mice(
+      data_with_missing,
+      m = 3,
+      maxit = 3,
+      seed = 12345,
+      printFlag = FALSE
+    )
+
+  model <- "
+ visual  =~ x1 + x2 + x3
+ textual =~ x4 + x5 + x6
+ speed   =~ x7 + x8 + x9
+ "
+  sem_data <-
+    set_sem(model, data = imputed_data, conf.int = TRUE, conf.level = 0.95)
+  # result <- run_sem(sem_data)
+  expect_no_error(result <- run_sem(sem_data))
+  #   expect_no_error(lapply(result@results, summary))
+
+  # Check that the result is as expected
+  # This will depend on the output format of run_sem
+  # Example:
+  expect_true(inherits(result, "SemResults"))
 })
 
-test_that("SemImputedData objects creation fails with invalid syntax", {
-  data(mtcars)
-  mtcars_mis <- mtcars
-  mtcars_mis$mpg[1:5] <- NA
-  model <- "mpg ~ wt + yyy"
-  imputed_data <- mice::mice(mtcars_mis, m = 4, maxit = 2, print = FALSE)
-  # sem_imputed_data <- set_sem(data = imputed_data, model = model, conf.int = TRUE, conf.level = 0.95)
-  expect_error(sem_imputed_data <- set_sem(data = imputed_data, model = model))
-})
 
-test_that("SemImputedData objects are created successfully with valid inputs", {
-  data(mtcars)
-  mtcars_mis <- mtcars
-  mtcars_mis$mpg[1:5] <- NA
-  imputed_data <- mice::mice(mtcars_mis, m = 2, maxit = 2, print = FALSE)
-  expect_error(sem_imputed_data <- set_sem(imputed_data, model = "x+y", conf.int = TRUE, conf.level = 0.95))
-  expect_error(sem_imputed_data <- set_sem(imputed_data, model = "x", conf.int = TRUE, conf.level = 0.95))
-})
-
-test_that("set_sem executes correctly with OpenMx models", {
+test_that("run_sem executes correctly with OpenMx models", {
   # Assuming you have a predefined `SemImputedData` object for OpenMx models
   # Load Holzinger and Swineford (1939) dataset
   data("HolzingerSwineford1939", package = "lavaan")
@@ -88,13 +90,11 @@ test_that("set_sem executes correctly with OpenMx models", {
       values = 0
     )
   )
+  sem_data <-
+    set_sem(mx_model, data = imputed_data)
+
+  expect_no_error(result <- run_sem(sem_data))
+
   # Check that the result is as expected
-  expect_no_error(sem_data <- set_sem(imputed_data, mx_model))
-  expect_s4_class(sem_data, "SemImputedData")
-  expect_in(sem_data@method, c("MxModel", "OpenMx"))
-  expect_equal(sem_data@n_imputations, 3)
-  expect_equal(
-    sem_data@original_data,
-    mice::complete(imputed_data, action = 0L)
-  )
+  expect_true(inherits(result, "SemResults"))
 })

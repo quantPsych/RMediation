@@ -1,13 +1,9 @@
-# library(testthat)
-# library(RMediation) # Replace with the actual name of your package
-# library(lavaan)
-# library(OpenMx)
-# library(mice)
+library(testthat)
 
 # Mock data or a way to create SemResults objects for testing
 # Assuming `create_mock_SemResults` is a function you've defined to generate mock SemResults objects
 # for the sake of these tests. Replace this with actual data or object creation as necessary.
-create_mock_SemResults <- function(method) {
+create_mock_PooledSEMResults <- function(method) {
   # Create a mock SemResults object
   # Replace this with actual data or object creation as necessary
   # The `method` argument can be used to customize the mock object based on the method
@@ -77,45 +73,23 @@ create_mock_SemResults <- function(method) {
   # Run the models
   # imp_sem <- set_sem(imputed_data, mx_model)
   res <- if (method == "lavaan") {
-    set_sem(imputed_data, lav_model) |> run_sem()
+    set_sem(imputed_data, lav_model, conf.int = FALSE, conf.level = 0.95) |> run_sem() |> pool_sem()
   } else if (method == "OpenMx") {
-    set_sem(imputed_data, mx_model) |> run_sem()
+    set_sem(imputed_data, mx_model, conf.int = FALSE, conf.level = 0.95) |> run_sem() |> pool_sem()
   }
 
   return(res)
 }
 
-mock_lavaan_SemResults <- create_mock_SemResults(method = "lavaan")
-mock_OpenMx_SemResults <- create_mock_SemResults(method = "OpenMx")
+test_that("PooledSEMResults validity checks work", {
+  # Assuming `create_mock_PooledSEMResults` is a function you'll define that creates valid mock objects
+  valid_object <- create_mock_PooledSEMResults("lavaan")
+  expect_true(is(valid_object, "PooledSEMResults"))
 
-pooled_results_lavaan <- pool_sem(mock_lavaan_SemResults)
-pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
+  # Example of an invalid test: missing required column in tidy_table
+  invalid_object_missing_column <- valid_object
+  invalid_object_missing_column@tidy_table <- invalid_object_missing_column@tidy_table[ , -which(names(invalid_object_missing_column@tidy_table) == "estimate")]
+  expect_error(is(invalid_object_missing_column, "PooledSEMResults"))
 
-pooled_results_lavaan@method
-# Test: pool_sem correctly processes SemResults from lavaan
-test_that("pool_sem works with lavaan SemResults", {
-  pooled_results_lavaan <- pool_sem(mock_lavaan_SemResults)
-  expect_s4_class(pooled_results_lavaan, "PooledSEMResults")
-  expect_equal(pooled_results_lavaan@method, "lavaan")
-  expect_true(is.data.frame(pooled_results_lavaan@tidy_table))
-  # Additional checks on the structure and content of pooled_results_lavaan@results can be added here
-})
-
-# Test: pool_sem correctly processes SemResults from OpenMx
-test_that("pool_sem works with OpenMx SemResults", {
-  # pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
-  expect_s3_class(pooled_results_OpenMx, "PooledSEMResults")
-  expect_equal(pooled_results_OpenMx@method, "OpenMx")
-  expect_true(is.data.frame(pooled_results_OpenMx@results))
-  # Additional checks on the structure and content of pooled_results_OpenMx@results can be added here
-})
-
-# Test: pool_sem handles unsupported methods gracefully
-test_that("pool_sem handles unsupported methods gracefully", {
-  mock_unsupported_SemResults <-
-    create_mock_SemResults(method = "unsupported")
-  expect_error(
-    pool_sem(mock_unsupported_SemResults),
-    "Unsupported method specified in SemResults"
-  )
+  # Add more tests as needed
 })

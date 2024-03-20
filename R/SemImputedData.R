@@ -80,91 +80,120 @@ setValidity("SemImputedData", function(object) {
 ### SemResults Methods
 ### =========================================================
 
-#' Create SemImputedData Object
+### ----------------------------------------------------------------------------
+### run_sem method
+### ----------------------------------------------------------------------------
+#' Run a SEM model
 #'
-#' Constructs a new `SemImputedData` object for structural equation modeling (SEM) analysis
-#' on multiply imputed datasets. This function ensures that the provided data is a [mice::mids]
-#' object from the `mice` package and that the specified SEM analysis method is supported.
+#' A generic function to run and analyze multiply imputed data sets.
 #'
-#' @param data A `mids` object from the `mice` package containing multiply imputed datasets.
-#' @param model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
-#' @param conf.int A logical value indicating whether confidence intervals are
-#'   included in the SEM results. Defaults to `FALSE`.
-#' @param conf.level A numeric value specifying the confidence level for
-#'  confidence intervals, which must be between 0 and 1. Defaults to 0.95.
-#'  If `conf.int` is `FALSE`, this argument is ignored.
-#'
-#' @return An object of class SemImputedData. See [SemImputedData] for the details of the slots.
-#'
-#' @details All the arguments `data`, `method`, `conf.int`, and `conf.level` are used to specify the SEM analysis. `set_sem` is a constructor function for `SemImputedData` class. These methods are used as constructors for the `SemImputedData` class.
-#' @usage set_sem(data, method = "lavaan", conf.int = FALSE, conf.level 0.95)
-#' @seealso  [SemImputedData] [mice::mids] [lavaan] [OpenMx]
-#' @aliases set_sem set_sem-methods
-#' @examples
-#' \dontrun{
-#' data("HolzingerSwineford1939", package = "lavaan")
-#' df_complete <- na.omit(HolzingerSwineford1939)
-#' amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
-#' imputed_data <- mice::mice(amp$amp, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
-#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
-#' str(sem_data)
-#' }
-#' @rdname set_sem
+#' @param object A `SemImputedData` object
+#' @param ... Additional arguments passed to either [lavaan::sem] or [OpenMx::MxModel].
+#' @return A `SemResults` object
+#' @usage run_sem(object, ...)
 #' @export
+#' @rdname run_sem
+#' @author Davood Tofighi \email{dtofighi@@gmail.com}
+#' @importFrom methods setGeneric
 
-setGeneric("set_sem", function(data, model, conf.int = FALSE, conf.level = 0.95) standardGeneric("set_sem"),
-  signature = "data"
+setGeneric(
+  "run_sem",
+  function(object, ...) {
+    standardGeneric("run_sem")
+  }
 )
 
-#' @rdname set_sem
+#' Run SEM Analysis on Imputed Data
+#'
+#' This method facilitates running SEM analysis using either lavaan or OpenMx
+#' on multiply imputed datasets contained within a [SemImputedData-class] object.
 #' @export
-
-setMethod("set_sem", "mids", function(data, model, conf.int = FALSE, conf.level = 0.95) {
-  if (missing(data)) {
-    stop("Argument 'data' is missing.", call. = FALSE)
+#' @rdname run_sem
+#' @author Davood Tofighi \email{dtofighi@@gmail.com}
+#' @examples
+#' \dontrun{
+#' # Load Holzinger and Swineford (1939) dataset
+#' data("HolzingerSwineford1939", package = "lavaan")
+#' # Introduce missing data
+#' df_complete <- na.omit(HolzingerSwineford1939[paste0("x", 1:9)])
+#' amp <- mice::ampute(df_complete, prop = 0.1, mech = "MAR")
+#' data_with_missing <- amp$amp
+#' # Perform multiple imputation
+#' imputed_data <- mice::mice(data_with_missing, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
+#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
+#' model <- "
+#'  visual  =~ x1 + x2 + x3
+#'  textual =~ x4 + x5 + x6
+#'  speed   =~ x7 + x8 + x9
+#'  "
+#' ## Note that the model is specified as a string
+#' res <- run_sem(sem_data, model)
+#' }
+setMethod("run_sem", "SemImputedData", function(object, ...) {
+  if (!inherits(object@data, "mids")) {
+    stop("'object@data' must be a 'mids' object from the 'mice' package.")
   }
 
-  if (missing(model)) {
-    stop("Argument 'model' is missing.", call. = FALSE)
-  }
-
-  if (!inherits(data, "mids")) {
-    stop("'data' must be a 'mids' object from the 'mice' package.",
-      call. = FALSE
-    )
-  }
-
-  if (!all(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel", "OpenMx"))) {
-    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
-  }
-
-  if (!is.numeric(conf.level) ||
-    length(conf.level) != 1 || conf.level < 0 || conf.level > 1) {
-    stop("'conf.level' must be a single numeric value between 0 and 1.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.logical(conf.int) || length(conf.int) != 1) {
-    stop("'conf.int' must be a single logical value (TRUE or FALSE).",
-      call. = FALSE
-    )
-  }
-
-  n_imputations <- data$m # number of imputations
-  original_data <- mice::complete(data, action = 0L) # original data
-  fit_model0 <- fit_model(model, original_data)
-  method <- model_type(fit_model0)
-  method <- ifelse(all(method %in% c("MxModel", "OpenMx")), "OpenMx", "lavaan")
-
-  SemImputedData(
-    data = data,
-    model = model,
-    method = method,
-    conf.int = conf.int,
-    conf.level = conf.level,
-    original_data = original_data,
-    n_imputations = n_imputations,
-    fit_model = fit_model0
+  # Dynamically select the appropriate function based on the SEM method.
+  sem_fn <- switch(tolower(object@method),
+                   "lavaan" = lav_mice,
+                   "openmx" = mx_mice,
+                   stop("Unsupported method specified: ", object@method)
   )
+
+  # Run the SEM model on the imputed datasets
+  sem_results <- sem_fn(object@data, object@model, ...)
+
+  # Extract the results from the imputed datasets
+  vcov_sem <- switch(tolower(object@method),
+                     "lavaan" = vcov_lav,
+                     "openmx" = vcov,
+                     stop("Unsupported method specified: ", object@method)
+  )
+
+  coef_sem <- switch(tolower(object@method),
+                     "lavaan" = lavaan::coef,
+                     "openmx" = coef,
+                     stop("Unsupported method specified: ", object@method)
+  )
+  # Extract the tidy results from the estimated SEM models
+  estimate_df <- purrr::map_dfr(sem_results, tidy, .id = ".imp") # long tidy table of estimates across imputed datasets
+  # Extract the coefficients from the estimated SEM models
+  coef_df <- purrr::map_dfr(sem_results, coef_sem, .id = ".imp") # long table of coefficients across imputed datasets
+  # Extract the sampling covariance (within covariance) matrices from the estimated SEM models
+  cov_df <- purrr::map(sem_results, vcov_sem) # list coefficients estimates sampling covariances across imputed datasets
+
+  # Create a new SemResults object
+  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
 })
+
+
+### ----------------------------------------------------------------------------
+### Helper internal functions for run_sem method
+### ----------------------------------------------------------------------------
+lav_mice <- function(data, model, ...) {
+  # Extract complete imputed datasets
+  sem_results <-
+    mice::complete(data, action = "all") |> purrr::map(lavaan::sem, model = model, ...)
+  return(sem_results)
+}
+
+mx_mice <- function(data, model, ...) {
+  # Ensure 'mxModel' is an OpenMx model object
+  if (!inherits(model, "MxModel")) {
+    stop("'model' must be an 'MxModel' object from the 'OpenMx' package.")
+  }
+  verified <- OpenMx::imxVerifyModel(model)
+  if (!verified) {
+    stop("The mxModel object failed verification.")
+  }
+  # Extract complete imputed datasets
+  data_complete <- mice::complete(data, action = "all")
+  # Fit the model to each imputed dataset
+  sem_results <- data_complete |> purrr::map(\(df) {
+    mxDataObj <- OpenMx::mxData(df, type = "raw")
+    updatedModel <- OpenMx::mxModel(model, mxDataObj)
+    OpenMx::mxRun(updatedModel)
+  })
+  return(sem_results)
+}

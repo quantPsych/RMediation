@@ -43,43 +43,54 @@ PooledSEMResults <- setClass(
 setValidity("PooledSEMResults", function(object) {
   messages <- character(0)
 
-  # check if results is an empty data frame
-  # if (!is.data.frame(object@tidy_table) || nrow(object@tidy_table) == 0 || ncol(object@results) == 0) {
-  #   messages <-
-  #     c(
-  #       messages,
-  #       "The results must be a non-empty data frame."
-  #     )
-  # }
-  # requiredColumns <-
-  #   c(
-  #     "term",
-  #     "estimate",
-  #     "std.error",
-  #     "p.value"
-  #   )
-  # # Check for required columns
-  # if (!all(requiredColumns %in% colnames(object@tidy_table))) {
-  #   messages <-
-  #     c(
-  #       messages,
-  #       "The results data frame must contain all required columns: term, estimate, std.error, p.value."
-  #     )
-  # }
-  # check if cov_total is a positive definite symmetric matrix
-  if (!is_pd(object@cov_total)) {
-    messages <-
-      c(
-        messages,
-        "The cov_total must be a symmetric positive definite matrix."
-      )
+  # Check if tidy_table is a non-empty data frame with required columns
+  if (conf.int(object) && !is.logical(conf.int(object))) {
+    messages <- c(messages, "conf.int must be a logical value.")
   }
 
-  if (length(messages) == 0) {
-    TRUE
+  requiredColumns <- c("term", "estimate", "std.error", "p.value")
+
+  requiredColumns <-  ifelse(object@conf.int,
+                            c(requiredColumns, "conf.low", "conf.high"),
+                            requiredColumns)
+
+  if (!is.data.frame(object@tidy_table) ||
+      nrow(object@tidy_table) == 0) {
+    messages <-
+      c(messages, "tidy_table must be a non-empty data frame.")
+  } else if (!all(requiredColumns %in% colnames(object@tidy_table))) {
+    missingCols <- setdiff(requiredColumns, colnames(object@tidy_table))
+    messages <-
+      c(messages,
+        paste(
+          "Missing required columns in tidy_table:",
+          paste(missingCols, collapse = ", ")
+        ))
+  }
+
+  # Check if cov_total, cov_between, and cov_within are positive definite symmetric matrices
+  if (!is_pd(object@cov_total)) {
+    messages <-
+      c(messages,
+        "cov_total must be a symmetric positive definite matrix.")
+  }
+
+  if (!is_pd(object@cov_between)) {
+    messages <-
+      c(messages,
+        "cov_between must be a symmetric positive definite matrix.")
+  }
+
+  if (!is_pd(object@cov_within)) {
+    messages <-
+      c(messages,
+        "cov_within must be a symmetric positive definite matrix.")
+  }
+
+  if (length(messages) > 0) {
+    stop(paste(messages, collapse = "\n"))
   } else {
-    FALSE
-    stop(messages)
+    TRUE
   }
 })
 
@@ -87,125 +98,3 @@ setValidity("PooledSEMResults", function(object) {
 ### =============================================
 ### Methods for the PooledSEMResults Class
 ### ============================================
-
-### ---------------------------------------------
-### Method: pool_sem
-### class: "SemResults"
-### Returns: PooledSEMResults
-### Role: Constructor, Pool results from multiple imputation analyses
-### ---------------------------------------------
-
-#' Pool SEM Analysis Results
-#'
-#' A generic function to pool SEM analysis results from multiple datasets or imputations.
-#'
-#' @description
-#' `pool_sem` pools SEM analysis results, supporting `lavaan` and `OpenMx` models.
-#' It calculates pooled estimates, standard errors, confidence intervals, and more.
-#'
-#' @param object `SemResults` object with SEM analysis results.
-#' @param ... Additional arguments for extensions.
-#'
-#' @return `PooledSEMResults` object containing pooled SEM analysis results.
-#' @details Refer to method-specific documentation for details on pooling process and assumptions.
-#' @examples
-#' \dontrun{
-#' # Assuming `sem_results` is a `SemResults` object with `lavaan` model fits:
-#' pooled_results <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
-#' print(pooled_results)
-#' }
-#' @importFrom dplyr mutate select rename contains group_by summarise ungroup
-#' @importFrom purrr map_dfr
-#' @importFrom tibble tibble as_tibble
-#' @importFrom broom tidy
-#' @seealso [lavaan], [OpenMx]
-#' @author Davood Tofighi \email{dtofighi@@gmail.com}
-
-setGeneric(
-  "pool_sem",
-  function(object,
-           ...) {
-    standardGeneric("pool_sem")
-  }
-)
-
-#' Pool SEM Results from Multiple Imputations
-#'
-#' This function pools the results of structural equation modeling (SEM) analyses
-#' performed on multiple imputed datasets. It supports pooling for models analyzed
-#' with either the \code{lavaan} or \code{OpenMx} package. The function extracts and pools
-#' relevant statistics (e.g., estimates, standard errors) across all imputations,
-#' considering the specified confidence interval settings.
-#'
-#' @return A \code{data.frame} containing the pooled results of the SEM analyses. The
-#'  column names adhere to tidy conventions and include the following columns:
-#'   - `term`: The name of the parameter being estimated.
-#'   - `estimate`: The pooled estimate of the parameter.
-#'   - `std.error`: The pooled standard error of the estimate.
-#'   - `statistic`: The pooled test statistic (e.g., z-value, t-value).
-#'   - `p.value`: The pooled p-value for the test statistic.
-#'   - `conf.low`: The lower bound of the confidence interval for the estimate.
-#'   - `conf.high`: The upper bound of the confidence interval for the estimate.
-#'
-#' @examples
-#' \dontrun{
-#' # Assuming `sem_results` is a SemResults object with lavaan model fits:
-#' pooled_results <- pool_sem(sem_results)
-#'
-#' # If you want to calculate and include confidence intervals at a 95% level:
-#' pooled_results_ci <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
-#' }
-#'
-#' @export
-#' @rdname pool_sem
-#' @aliases pool_sem
-
-setMethod("pool_sem", "SemResults", function(object) {
-  if (object@method %in% c("lavaan", "OpenMx")) {
-    tidy_table <- pool_tidy(object)
-  } else {
-    stop(paste(
-      "Unsupported method specified in SemResults:",
-      object@method
-    ))
-  }
-  cov_res <- pool_cov(object)
-
-  PooledSEMResults(
-    tidy_table = tidy_table,
-    cov_total = cov_res[["cov_total"]],
-    cov_within = cov_res[["cov_within"]],
-    cov_between = cov_res[["cov_between"]],
-    method = object@method,
-    conf.int = object@conf.int,
-    conf.level = object@conf.level
-  )
-})
-
-### ---------------------------------------------
-### Helper functions for pooling results from lavaan and OpenMx objects
-### These functions should be customized based on the structure of your lavaan and OpenMx objects and the specific information you need to extract for pooling.
-### ---------------------------------------------
-
-pool_tidy <- function(object) {
-  ## Extract the relevant information from a SemResults object and return a tidy data frame
-  n_imputations <- length(object@results)
-  x <- object@estimate_df
-  x |>
-    dplyr::group_by(.data$term) |>
-    dplyr::summarise(est = mean(.data$estimate), var_b = var(.data$estimate), var_w = mean(.data$std.error^2), var_tot = .data$var_w + .data$var_b * (1 + 1 / n_imputations), se = sqrt(.data$var_tot), p.value = exp(mean(log(.data$p.value)))) |>
-    dplyr::ungroup() |>
-    dplyr::rename(estimate = .data$est, std.error = .data$se) |>
-    dplyr::relocate(.data$term, .data$estimate, .data$std.error, .data$p.value, .data$var_b, .data$var_w, .data$var_tot)
-}
-
-pool_cov <- function(object) {
-  ## Extract the relevant information from a SemResults object and return a list of covariance matrices
-  n_imputations <- length(object@results)
-  cov_between <- object@coef_df |>
-    dplyr::select(-.data$.imp) |>
-    cov()
-  cov_within <- Reduce("+", object@cov_df) / n_imputations
-  cov_total <- cov_between * (1 + 1 / n_imputations) + cov_within
-  return(list(cov_total = cov_total, cov_between = cov_between, cov_within = cov_within))
-}

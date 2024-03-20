@@ -1,268 +1,254 @@
-#' SemResults Class
+#' @title SemResults Class
 #'
-#' An S4 class for storing the results of structural equation modeling analysis
-#' performed on multiply imputed datasets. This class can accommodate results
-#' from [lavaan], [OpenMx], or potentially other SEM software, providing
-#' a unified interface to access and manipulate SEM results.
+#' @description An S4 class for storing the results of SEM analysis
+#' performed on multiply imputed datasets. Supports `lavaan` and `OpenMx`.
 #'
-#' @slot results A list of SEM model fits, where each element represents the
-#'   results from one imputed dataset. The specific content and structure of
-#'   each element can vary based on the SEM method used (e.g., objects of
-#'   class `lavaan` or `MxModel`). The `results` slot is the primary storage
-#'   location for SEM results, and it is expected to be a list of length equal
-#'   to the number of imputed datasets.
-#' @slot esimate_df A data frame containing the parameter estimates and standard errors, statistics, p values from running the SEM model on the imputed data.
-#' @slot coef_df A data frame containing $m$ rows of the coefficient estimates of the SEM model for each imputed dataset.
-#' @slot cov_df A list of $m$ the covariance matrices of the coefficient estimates of the SEM model for each imputed dataset. These are "within-imputation" covariance matrices.
-#' @slot method A character string specifying the SEM package used for the
-#'   analysis, with valid options being "lavaan" for `lavaan` model fits
-#'   or "OpenMx" for `OpenMx` model fits. This slot inherits from the `SemImputedData` class.
-#' @slot conf.int A logical value indicating whether confidence intervals are
-#'   included in the SEM results. Defaults to `FALSE`. This slot inherits from the `SemImputedData` class.
-#' @slot conf.level A numeric value specifying the confidence level for
-#'   confidence intervals, which must be between 0 and 1. Defaults to 0.95. This slot inherits from the `SemImputedData` class.
+#' @slot results A list of SEM model fits for each imputed dataset.
+#' @slot estimate_df Data frame of parameter estimates and standard errors.
+#' @slot coef_df Data frame of coefficient estimates for each imputed dataset.
+#' @slot cov_df List of covariance matrices of coefficient estimates.
+#' @slot method SEM package used for analysis: 'lavaan' or 'OpenMx'.
+#' @slot conf.int Logical; if confidence intervals are included.
+#' @slot conf.level Confidence level for confidence intervals.
+#' @import methods
 #' @exportClass SemResults
 #' @docType class
 #' @name SemResults
 #' @rdname SemResults-class
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
-#' @aliases SemResults SemResults-class
+# Define the SemResults S4 class
 SemResults <- setClass(
   "SemResults",
   slots = c(
-    results = "list", # Holds SEM model fits
-    estimate_df = "data.frame", # Holds parameter estimates and standard errors
-    coef_df = "data.frame", # Holds coefficient estimates
-    cov_df = "list", # Holds covariance matrices
-    method = "character", # Indicates the SEM analysis method used
-    conf.int = "logical", # Indicates whether confidence intervals are included
-    conf.level = "numeric" # Specifies the confidence level
+    results = "list",
+    estimate_df = "data.frame",
+    coef_df = "data.frame",
+    cov_df = "list",
+    method = "character",
+    conf.int = "logical",
+    conf.level = "numeric"
+    # ),
+    # prototype = list(
+    #   results = list(),
+    #   estimate_df = data.frame(),
+    #   coef_df = data.frame(),
+    #   cov_df = list(),
+    #   method = "lavaan",
+    #   conf.int = FALSE,
+    #   conf.level = 0.95
   )
 )
 
+# Set validity method for SemResults
 setValidity("SemResults", function(object) {
-  messages <- character()
+  messages <- character(0)
 
-  # check if the results slot is a list and not empty
   if (!is.list(object@results) || length(object@results) == 0) {
-    messages <-
-      c(messages, "results must be a non-empty list")
+    messages <- c(messages, "results must be a non-empty list.")
   }
-  # chech if estimate_df is a data frame
   if (!is.data.frame(object@estimate_df)) {
-    messages <-
-      c(messages, "estimate_df must be a data frame")
+    messages <- c(messages, "estimate_df must be a data frame.")
   }
-  # chech if coef_df is a data frame
   if (!is.data.frame(object@coef_df)) {
-    messages <-
-      c(messages, "coef_df must be a data frame")
+    messages <- c(messages, "coef_df must be a data frame.")
   }
-  # check if cov_df is a non-empty list
   if (!is.list(object@cov_df) || length(object@cov_df) == 0) {
-    messages <-
-      c(messages, "cov_df must be a non-empty list")
+    messages <- c(messages, "cov_df must be a non-empty list.")
   }
   if (!object@method %in% c("lavaan", "OpenMx")) {
     messages <-
-      c(messages, "method must be either 'lavaan' or 'OpenMx'")
+      c(messages, "method must be either 'lavaan' or 'OpenMx'.")
   }
-  if (length(object@conf.level) != 1 ||
-    object@conf.level <= 0 || object@conf.level >= 1) {
+  if (!is.logical(object@conf.int) ||
+      length(object@conf.int) != 1) {
+    messages <- c(messages, "conf.int must be a single logical value.")
+  }
+  if (!is.numeric(object@conf.level) ||
+      object@conf.level <= 0 || object@conf.level >= 1) {
     messages <-
-      c(messages, "conf.level must be a numeric value between 0 and 1")
+      c(messages, "conf.level must be a numeric value between 0 and 1.")
   }
-  if (!is.logical(object@conf.int) || length(object@conf.int) != 1) {
-    messages <-
-      c(messages, "conf.int must be a single logical value")
-  }
-  if (length(object@results) == 0) {
-    messages <-
-      c(messages, "results must be a non-empty list")
-  }
+  # Add validations here based on the above corrections
 
-  if (length(messages) == 0) {
+  if (length(messages) == 0)
     TRUE
-  } else {
+  else
     messages
-  }
 })
-#
-# setMethod("initialize", "SemResults", function(.Object,
-#                                                results = list(),
-#                                                estimate_df = data.frame(),
-#                                                coef_df = data.frame(),
-#                                                cov_df = list(),
-#                                                method = "lavaan",
-#                                                conf.int = FALSE,
-#                                                conf.level = 0.95,
-#                                                ...) {
-#   # check if the results is a non-empty list and it's element classes are either "lavaan" or "MxModel"
-#   if (!is.list(results) || length(results) == 0) {
-#     stop("results must be a non-empty list")
-#   }
-#   if (!all(sapply(results, \(x) inherits(x, "lavaan") || inherits(x, "MxModel")))) {
-#     stop("results must contain objects of class 'lavaan' or 'MxModel'")
-#   }
-#   n_imp <- length(results) # number of imputed datasets
-#   # Check if the estimate_df is a data frame with the following columns, "term", "estimate", "std.error", "statistic", "p.value"
-#
-#   required_cols <- c("term", "estimate", "std.error", "statistic", "p.value")
-#   if (!is.data.frame(estimate_df) || !all(required_cols %in% colnames(estimate_df))) {
-#     stop("estimate_df must be a data frame with columns 'term', 'estimate', 'std.error', 'statistic', 'p.value'")
-#   }
-#   # Check if the coef_df is a non-empty data frame and has n_imp rows
-#   if (!is.data.frame(coef_df) || nrow(coef_df) != n_imp) {
-#     stop(paste0("coef_df must be a non-empty data frame with ", n_imp, " rows"))
-#   }
-#   # check cov_df is a non-empty list and has n_imp elements
-#   if (!is.list(cov_df) || length(cov_df) != n_imp) {
-#     stop(paste0("cov_df must be a non-empty list with ", n_imp, " elements"))
-#   }
-#   # Basic validation could be performed here if needed
-#   if (!method %in% c("lavaan", "OpenMx")) {
-#     stop("Method must be either 'lavaan' or 'OpenMx'")
-#   }
-#   # check if conf.int is a single logical value
-#   if (!is.logical(conf.int) || length(conf.int) != 1) {
-#     stop("conf.int must be a single logical value")
-#   }
-#   # check if conf.level is a single numeric value between 0 and 1
-#   if (!is.numeric(conf.level) ||
-#     is.numeric(conf.level) != 1 || conf.level <= 0 || conf.level >= 1) {
-#     stop("conf.level must be a single numeric value between 0 and 1")
-#   }
-#
-#   .Object@results <- results
-#   .Object@estimate_df <- estimate_df
-#   .Object@coef_df <- coef_df
-#   .Object@cov_df <- cov_df
-#   .Object@method <- method
-#   .Object@conf.int <- conf.int
-#   .Object@conf.level <- conf.level
-#
-#   return(.Object)
-# })
 
 ### ============================================================================
 ### Methods for the SemResults class
 ### ============================================================================
 
+### ---------------------------------------------
+### Method: pool_sem
+### class: "SemResults"
+### Returns: PooledSEMResults
+### Role: Constructor, Pool results from multiple imputation analyses
+### ---------------------------------------------
 
-### ----------------------------------------------------------------------------
-### run_sem method
-### ----------------------------------------------------------------------------
-#' Run a SEM model
+#' Pool SEM Analysis Results
 #'
-#' A generic function to run and analyze multiply imputed data sets.
+#' A generic function to pool SEM analysis results from multiple datasets or imputations.
 #'
-#' @param object A `SemImputedData` object
-#' @param ... Additional arguments passed to either [lavaan::sem] or [OpenMx::MxModel].
-#' @return A `SemResults` object
-#' @usage run_sem(object, ...)
-#' @export
-#' @rdname run_sem
-#' @author Davood Tofighi \email{dtofighi@@gmail.com}
-#' @importFrom methods setGeneric
-
-setGeneric(
-  "run_sem",
-  function(object, ...) {
-    standardGeneric("run_sem")
-  }
-)
-
-#' Run SEM Analysis on Imputed Data
+#' @description
+#' `pool_sem` pools SEM analysis results, supporting `lavaan` and `OpenMx` models.
+#' It calculates pooled estimates, standard errors, confidence intervals, and more.
 #'
-#' This method facilitates running SEM analysis using either lavaan or OpenMx
-#' on multiply imputed datasets contained within a [SemImputedData-class] object.
-#' @export
-#' @rdname run_sem
-#' @author Davood Tofighi \email{dtofighi@@gmail.com}
+#' @param object `SemResults` object with SEM analysis results.
+#' @param ... Additional arguments for extensions.
+#'
+#' @return `PooledSEMResults` object containing pooled SEM analysis results.
+#' @details Refer to method-specific documentation for details on pooling process and assumptions.
 #' @examples
 #' \dontrun{
-#' # Load Holzinger and Swineford (1939) dataset
-#' data("HolzingerSwineford1939", package = "lavaan")
-#' # Introduce missing data
-#' df_complete <- na.omit(HolzingerSwineford1939[paste0("x", 1:9)])
-#' amp <- mice::ampute(df_complete, prop = 0.1, mech = "MAR")
-#' data_with_missing <- amp$amp
-#' # Perform multiple imputation
-#' imputed_data <- mice::mice(data_with_missing, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
-#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
-#' model <- "
-#'  visual  =~ x1 + x2 + x3
-#'  textual =~ x4 + x5 + x6
-#'  speed   =~ x7 + x8 + x9
-#'  "
-#' ## Note that the model is specified as a string
-#' res <- run_sem(sem_data, model)
+#' # Assuming `sem_results` is a `SemResults` object with `lavaan` model fits:
+#' pooled_results <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
+#' print(pooled_results)
 #' }
-setMethod("run_sem", "SemImputedData", function(object, ...) {
-  if (!inherits(object@data, "mids")) {
-    stop("'object@data' must be a 'mids' object from the 'mice' package.")
+#' @importFrom dplyr mutate select rename contains group_by summarise ungroup
+#' @importFrom purrr map_dfr
+#' @importFrom tibble tibble as_tibble
+#' @importFrom broom tidy
+#' @seealso [lavaan], [OpenMx]
+#' @author Davood Tofighi \email{dtofighi@@gmail.com}
+
+setGeneric("pool_sem",
+           function(object,
+                    ...) {
+             standardGeneric("pool_sem")
+           })
+
+#' Pool SEM Results from Multiple Imputations
+#'
+#' This function pools the results of structural equation modeling (SEM) analyses
+#' performed on multiple imputed datasets. It supports pooling for models analyzed
+#' with either the \code{lavaan} or \code{OpenMx} package. The function extracts and pools
+#' relevant statistics (e.g., estimates, standard errors) across all imputations,
+#' considering the specified confidence interval settings.
+#'
+#' @return A \code{data.frame} containing the pooled results of the SEM analyses. The
+#'  column names adhere to tidy conventions and include the following columns:
+#'   - `term`: The name of the parameter being estimated.
+#'   - `estimate`: The pooled estimate of the parameter.
+#'   - `std.error`: The pooled standard error of the estimate.
+#'   - `statistic`: The pooled test statistic (e.g., z-value, t-value).
+#'   - `p.value`: The pooled p-value for the test statistic.
+#'   - `conf.low`: The lower bound of the confidence interval for the estimate.
+#'   - `conf.high`: The upper bound of the confidence interval for the estimate.
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming `sem_results` is a SemResults object with lavaan model fits:
+#' pooled_results <- pool_sem(sem_results)
+#'
+#' # If you want to calculate and include confidence intervals at a 95% level:
+#' pooled_results_ci <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
+#' }
+#'
+#' @export
+#' @rdname pool_sem
+#' @aliases pool_sem
+
+setMethod("pool_sem", signature = "SemResults", function(object, ...) {
+  if (!object@method %in% c("lavaan", "OpenMx")) {
+    stop("Unsupported method specified in SemResults: ",
+         object@method)
   }
 
-  # Dynamically select the appropriate function based on the SEM method.
-  sem_fn <- switch(tolower(object@method),
-    "lavaan" = lav_mice,
-    "openmx" = mx_mice,
-    stop("Unsupported method specified: ", object@method)
+  # Assuming pool_tidy and pool_cov are correctly implemented
+  tidy_table <- pool_tidy(object)
+  cov_res <- pool_cov(object)
+
+  # Ensure PooledSEMResults class is defined with the correct slots
+  PooledSEMResults(
+    tidy_table = tidy_table,
+    cov_total = cov_res$cov_total,
+    cov_between = cov_res$cov_between,
+    cov_within = cov_res$cov_within,
+    method = object@method,
+    conf.int = object@conf.int,
+    conf.level = object@conf.level
   )
+})
+### ---------------------------------------------
+### Helper functions for pooling results from lavaan and OpenMx objects
+### These functions should be customized based on the structure of your lavaan and OpenMx objects and the specific information you need to extract for pooling.
+### ---------------------------------------------
 
-  # Run the SEM model on the imputed datasets
-  sem_results <- sem_fn(object@data, object@model, ...)
+#' Pool Tidy Results
+#' @param object `SemResults` object with SEM analysis results.
+#' @return A `data.frame` containing the pooled results of the SEM analyses.
+#' @details This function extracts and pools relevant statistics (e.g., estimates, standard errors) across all imputations, considering the specified confidence interval settings.
+#' @importFrom dplyr group_by summarise ungroup
+#' @importFrom purrr map_dfr
+#' @importFrom tibble as_tibble
+#' @importFrom broom tidy
+#' @keywords internal
+#' @noRd
+setGeneric("pool_tidy",
+           function(object) {
+             standardGeneric("pool_tidy")
+           })
 
-  # Extract the results from the imputed datasets
-  vcov_sem <- switch(tolower(object@method),
-    "lavaan" = vcov_lav,
-    "openmx" = vcov,
-    stop("Unsupported method specified: ", object@method)
-  )
+setMethod("pool_tidy", signature = "SemResults", function(object) {
+  ## Extract the relevant information from a SemResults object and return a tidy data frame
+  n_imputations <- length(object@results)
+  x <- object@estimate_df
+  x |>
+    dplyr::group_by(.data$term) |>
+    dplyr::summarise(
+      est = mean(.data$estimate),
+      var_b = var(.data$estimate),
+      var_w = mean(.data$std.error ^ 2),
+      var_tot = .data$var_w + .data$var_b * (1 + 1 / n_imputations),
+      se = sqrt(.data$var_tot),
+      p.value = exp(mean(log(.data$p.value)))
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::rename(estimate = .data$est, std.error = .data$se) |>
+    dplyr::relocate(
+      .data$term,
+      .data$estimate,
+      .data$std.error,
+      .data$p.value,
+      .data$var_b,
+      .data$var_w,
+      .data$var_tot
+    ) |>
+    tibble::as_tibble()
 
-  coef_sem <- switch(tolower(object@method),
-    "lavaan" = lavaan::coef,
-    "openmx" = coef,
-    stop("Unsupported method specified: ", object@method)
-  )
-  # Extract the tidy results from the estimated SEM models
-  estimate_df <- purrr::map_dfr(sem_results, tidy, .id = ".imp") # long tidy table of estimates across imputed datasets
-  # Extract the coefficients from the estimated SEM models
-  coef_df <- purrr::map_dfr(sem_results, coef_sem, .id = ".imp") # long table of coefficients across imputed datasets
-  # Extract the sampling covariance (within covariance) matrices from the estimated SEM models
-  cov_df <- purrr::map(sem_results, vcov_sem) # list coefficients estimates sampling covariances across imputed datasets
-
-  # Create a new SemResults object
-  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
 })
 
 
-### ----------------------------------------------------------------------------
-### Helper internal functions for run_sem method
-### ----------------------------------------------------------------------------
-lav_mice <- function(data, model, ...) {
-  # Extract complete imputed datasets
-  sem_results <-
-    mice::complete(data, action = "all") |> purrr::map(lavaan::sem, model = model, ...)
-  return(sem_results)
-}
+#' Pool Covariance Matrices
+#' @param object `SemResults` object with SEM analysis results.
+#' @return A list of covariance matrices.
+#' @details This function extracts and pools relevant covariance matrices across all imputations.
+#' @keywords internal
+#' @noRd
+#' @importFrom dplyr select
+#' @importFrom purrr map_dfr
+#' @importFrom tibble as_tibble
+#' @importFrom broom tidy
+#' @importFrom stats cov
 
-mx_mice <- function(data, model, ...) {
-  # Ensure 'mxModel' is an OpenMx model object
-  if (!inherits(model, "MxModel")) {
-    stop("'model' must be an 'MxModel' object from the 'OpenMx' package.")
-  }
-  verified <- OpenMx::imxVerifyModel(model)
-  if (!verified) {
-    stop("The mxModel object failed verification.")
-  }
-  # Extract complete imputed datasets
-  data_complete <- mice::complete(data, action = "all")
-  # Fit the model to each imputed dataset
-  sem_results <- data_complete |> purrr::map(\(df) {
-    mxDataObj <- OpenMx::mxData(df, type = "raw")
-    updatedModel <- OpenMx::mxModel(model, mxDataObj)
-    OpenMx::mxRun(updatedModel)
-  })
-  return(sem_results)
-}
+setGeneric("pool_cov",
+           function(object) {
+             standardGeneric("pool_cov")
+           })
+
+setMethod("pool_cov", signature = "SemResults", function(object) {
+  ## Extract the relevant information from a SemResults object and return a list of covariance matrices
+  n_imputations <- length(object@results)
+  cov_between <- object@coef_df |>
+    dplyr::select(-.data$.imp) |>
+    cov()
+  cov_within <- Reduce("+", object@cov_df) / n_imputations
+  cov_total <- cov_between * (1 + 1 / n_imputations) + cov_within
+  return(list(
+    cov_total = cov_total,
+    cov_between = cov_between,
+    cov_within = cov_within
+  ))
+})
