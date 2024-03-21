@@ -153,8 +153,6 @@ setGeneric(
 #'  textual =~ x4 + x5 + x6
 #'  speed   =~ x7 + x8 + x9
 #'  "
-#' #' sem_data <- set_sem(imputed_data, model)
-#' ## Note that the model is specified as a string
 #' res_pooled <- imputed_data |>
 #'   set_sem(model) |>
 #'   run_sem() |>
