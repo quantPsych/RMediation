@@ -6,6 +6,9 @@ format:
     fig-height: 4
     code-fold: false
     highlight: tango
+    theme: cerulean
+    toc: true
+    number_sections: true
 execute: 
   eval: true
   message: false
@@ -17,8 +20,8 @@ editor:
 
 ```{r}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
