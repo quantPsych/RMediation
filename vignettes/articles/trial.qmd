@@ -166,7 +166,6 @@ res1 <- imputed_data |>
     set_sem(model_lav) |>
     run_sem()
 
-extract_lav(res1@results)
 ```
 
 ```{r}
@@ -184,8 +183,6 @@ extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
         dplyr::rename(estimate = est, std.error = se) |>
         dplyr::relocate(term, estimate, std.error, p.value, var_b, var_w, var_tot)
 }
-
-extract_table(res1@results)
 
 
 ```

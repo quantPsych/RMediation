@@ -12,10 +12,9 @@
 #' @return A logical value: `TRUE` if the model has been fitted, and `FALSE` otherwise.
 #'
 #' @usage is_fit(model,...)
-#' @importClassesFrom lavaan lavaan
-#' @importClassesFrom OpenMx MxModel
-#' @importFrom lavaan lavInspect
-#' @importFrom OpenMx imxVerifyModel
+#' @importClassesFrom methods S4
+#' @aliases is_fit ANY-method is_fit,lavaan-method
+#' @docType methods
 #' @seealso [lavaan], [MxModel]
 #' @examples
 #' \dontrun{
@@ -35,19 +34,29 @@ setGeneric("is_fit", function(model, ...) {
   standardGeneric("is_fit")
 })
 
+#' @rdname is_fit
+#' @description
+#' Method for ANY object. This method returns `FALSE` for any object that is not
+#' a `lavaan` or `MxModel` object.
+#' @param model An ANY object.
 #' @export
+
 setMethod(
-  "is_fit",
-  signature(model = "ANY"),
+  "is_fit", "ANY",
   definition = function(model, ...) {
     if (!inherits(model, "lavaan") && !inherits(model, "MxModel")) FALSE
   }
 )
 
+#' @rdname is_fit
+#' @description
+#' Method for lavaan objects. This method checks the `do.fit` option in the
+#' `lavaan` object to determine if the model has been fitted. If the `do.fit`
+#' option is `TRUE`, the model has been fitted; otherwise, it has not been fitted.
+#' @param model A lavaan object.
 #' @export
 setMethod(
-  "is_fit",
-  signature(model = "lavaan"),
+  "is_fit", "lavaan",
   definition = function(model, ...) {
     # if (!inherits(model, "lavaan")) {
     #   stop("The model must be of class 'lavaan'.")
@@ -58,10 +67,14 @@ setMethod(
 )
 
 #' @rdname is_fit
+#' @description
+#' Method for OpenMx objects. This method checks the `wasRun` slot in the
+#' `MxModel` object to determine if the model has been fitted. If the `wasRun`
+#' slot is `TRUE`, the model has been fitted; otherwise, it has not been fitted.
+#' @param model A lavaan object.
 #' @export
 setMethod(
-  "is_fit",
-  signature(model = "MxModel"),
+  "is_fit", "MxModel",
   definition = function(model, ...) {
     # if (!inherits(model, "MxModel")) {
     #   stop("The model must be of class 'MxModel'.")

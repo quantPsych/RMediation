@@ -36,7 +36,7 @@ test_that("tidy.MxModel returns correct structure", {
   # Test without confidence intervals
   result <- RMediation::tidy(testModel, conf_int = FALSE)
   expect_true(inherits(result, "tbl"))
-  expect_true(all(c("term", "label", "estimate", "std.error", "statistic", "p.value") %in% names(result)))
+  expect_true(all(c("term", "label", "estimate", "std_error", "statistic", "p_value") %in% names(result)))
 
   # Test with confidence intervals
   result_with_ci <- tidy.MxModel(testModel, conf_int = TRUE)

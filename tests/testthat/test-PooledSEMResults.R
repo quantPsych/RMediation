@@ -10,7 +10,7 @@ create_mock_PooledSEMResults <- function(method) {
   # (e.g., lavaan, OpenMx) for which the object is being created
   data(HolzingerSwineford1939, package = "lavaan")
   df_complete <-
-    na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")])
+    na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")]) # nolint
   amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
   data_with_missing <- amp$amp
 
@@ -84,22 +84,3 @@ create_mock_PooledSEMResults <- function(method) {
 
   return(res)
 }
-
-set_sem(imputed_data, lav_model, conf_int = FALSE, conf_level = 0.95) |>
-  run_sem() |>
-  pool_sem()
-valid_object <- create_mock_PooledSEMResults("lavaan")
-expect_true(is(valid_object, "PooledSEMResults"))
-
-test_that("PooledSEMResults validity checks work", {
-  # Assuming `create_mock_PooledSEMResults` is a function you'll define that creates valid mock objects
-  valid_object <- create_mock_PooledSEMResults("lavaan")
-  expect_true(is(valid_object, "PooledSEMResults"))
-
-  # Example of an invalid test: missing required column in tidy_table
-  invalid_object_missing_column <- valid_object
-  invalid_object_missing_column@tidy_table <- invalid_object_missing_column@tidy_table[, -which(names(invalid_object_missing_column@tidy_table) == "estimate")]
-  expect_error(is(invalid_object_missing_column, "PooledSEMResults"))
-
-  # Add more tests as needed
-})

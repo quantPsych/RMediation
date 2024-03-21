@@ -3,6 +3,7 @@
 \docType{class}
 \name{SemResults}
 \alias{SemResults}
+\alias{SemResults-class}
 \title{SemResults Class}
 \description{
 An S4 class for storing the results of SEM analysis

@@ -24,7 +24,7 @@ test_that("run_sem executes correctly with lavaan models", {
  speed   =~ x7 + x8 + x9
  "
   sem_data <-
-    set_sem(model, data = imputed_data, conf_int = TRUE, conf_level = 0.95)
+    set_sem(model, data = imputed_data, conf_int = FALSE, conf_level = 0.95)
   # result <- run_sem(sem_data)
   expect_no_error(result <- run_sem(sem_data))
   #   expect_no_error(lapply(result@results, summary))

@@ -158,11 +158,11 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
   )
   # Extract the tidy results from the estimated SEM models
   estimate_df <- purrr::map_dfr(sem_results, tidy, .id = ".imp") # long tidy table of estimates across imputed datasets
-  # check if the names of estimate_df are std.error, p.value, conf.low, conf.high. If yes, then change only thoses names to std_error, p_value, conf_low, conf_high
-  if (all(c("std.error", "p.value", "conf.low", "conf.high") %in% names(estimate_df))) {
-    idx_names <- which(names(estimate_df) %in% c("std.error", "p.value", "conf.low", "conf.high"))
-    # sunsitue names that contain "." with "_"
-    names(estimate_df)[idx_names] <- gsub("\\.", "\\_", names(estimate_df)[idx_names])
+
+  dot_names <- c("std.error", "p.value", "conf.low", "conf.high")
+
+  if (any(names(estimate_df) %in% dot_names)) {
+    names(estimate_df) <- gsub("\\.", "\\_", names(estimate_df))
   }
 
   # Extract the coefficients from the estimated SEM models
@@ -174,14 +174,22 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
   SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf_int = object@conf_int, conf_level = object@conf_level)
 })
 
-#' Create SemImputedData Object
+### ----------------------------------------------------------------------------
+### run_sem method
+### ----------------------------------------------------------------------------
+
+#' Set up an SEM model with multiply imputed data.
 #'
-#' Constructs a new `SemImputedData` object for structural equation modeling (SEM) analysis
-#' on multiply imputed datasets. This function ensures that the provided data is a [mice::mids]
-#' object from the `mice` package and that the specified SEM analysis method is supported.
+#' This function sets up an SEM model with multiply imputed data for analysis. The function
+#' accepts a [mice::mids] object and a model syntax for either [lavaan] or [OpenMx] and
+#' returns a [SemImputedData] object for analysis. It returns an error if the provided
+#' data is not a [mice::mids] object or if the specified SEM analysis method is not supported. It returns an object of class [SemImputedData].
+#
+#' @details
+#' The function technically constructs a new [SemImputedData] object for structural equation modeling (SEM) analysis using either [lavaan] or [OpenMx] on multiply imputed datasets. This function ensures that the provided data is a [mice::mids] object from the `mice` package and that the specified SEM analysis method is supported.
 #'
-#' @param data A `mids` object from the `mice` package containing multiply imputed datasets.
-#' @param model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
+#' @param data A [mice::mids] object from the `mice` package containing multiply imputed datasets.
+#' @param model A [lavaan] or [OpenMx] model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
 #' @param conf_int A logical value indicating whether confidence intervals are
 #'   included in the SEM results. Defaults to `FALSE`.
 #' @param conf_level A numeric value specifying the confidence level for
@@ -191,16 +199,20 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 #' @return An object of class SemImputedData. See [SemImputedData] for the details of the slots.
 #'
 #' @details All the arguments `data`, `method`, `conf_int`, and `conf_level` are used to specify the SEM analysis. `set_sem` is a constructor function for `SemImputedData` class. These methods are used as constructors for the `SemImputedData` class.
-#' @usage set_sem(data, method = "lavaan", conf_int = FALSE, conf_level 0.95)
+#' @usage set_sem(data, model, conf_int = FALSE, conf_level = 0.95)
 #' @seealso  [SemImputedData] [mice::mids] [lavaan] [OpenMx]
-#' @aliases set_sem set_sem-methods
+#' @aliases set_sem
 #' @examples
 #' \dontrun{
 #' data("HolzingerSwineford1939", package = "lavaan")
 #' df_complete <- na.omit(HolzingerSwineford1939)
 #' amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
 #' imputed_data <- mice::mice(amp$amp, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
-#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
+#' model <- "
+#' visual  =~ x1 + x2 + x3
+#' textual =~ x4 + x5 + x6
+#' speed   =~ x7 + x8 + x9"
+#' sem_data <- set_sem(imputed_data, model)
 #' str(sem_data)
 #' }
 #' @rdname set_sem
@@ -212,7 +224,6 @@ setGeneric("set_sem", function(data, model, conf_int = FALSE, conf_level = 0.95)
 
 #' @rdname set_sem
 #' @export
-
 setMethod("set_sem", "mids", function(data, model, conf_int = FALSE, conf_level = 0.95) {
   if (missing(data)) {
     stop("Argument 'data' is missing.", call. = FALSE)

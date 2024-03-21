@@ -72,28 +72,34 @@ setValidity("PooledSEMResults", function(object) {
   }
 
   # Check if cov_total, cov_between, and cov_within are positive definite symmetric matrices
+  warning_messages <- character(0)
+
   if (!is_pd(object@cov_total)) {
-    messages <-
+    warning_messages <-
       c(
-        messages,
+        warning_messages,
         "cov_total must be a symmetric positive definite matrix."
       )
   }
 
   if (!is_pd(object@cov_between)) {
-    messages <-
+    warning_messages <-
       c(
-        messages,
+        warning_messages,
         "cov_between must be a symmetric positive definite matrix."
       )
   }
 
   if (!is_pd(object@cov_within)) {
-    messages <-
+    warning_messages <-
       c(
-        messages,
+        warning_messages,
         "cov_within must be a symmetric positive definite matrix."
       )
+  }
+
+  if (length(warning_messages) > 0) {
+    warning(paste(warning_messages, collapse = "\n"))
   }
 
   if (length(messages) > 0) {

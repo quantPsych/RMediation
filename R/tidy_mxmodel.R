@@ -64,7 +64,7 @@ tidy.MxModel <-
       ) |>
       dplyr::mutate(
         statistic = .data$estimate / .data$std_error,
-        p.value = 2 * pnorm(abs(.data$statistic), lower.tail = FALSE)
+        p_value = 2 * pnorm(abs(.data$statistic), lower.tail = FALSE)
       ) |>
       tibble::as_tibble()
 

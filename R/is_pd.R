@@ -4,24 +4,25 @@
 #' are strictly positive) by attempting Cholesky decomposition.
 #'
 #' @param x A numeric matrix.
-#'
+#' @param quiet Logical. If `TRUE`, suppresses warnings and error messages.
 #' @return Returns `TRUE` if the matrix is positive definite, `FALSE` otherwise.
-#'
+#' @usage is_pd(x, quiet = FALSE)
 #' @examples
-#'
 #' # Example of a positive definite matrix
 #' A <- matrix(c(1, 2, 2, 4), nrow = 2)
 #' is_pd(A) # Should return TRUE
 #' @export
 #' @rdname is_pd
 
-setGeneric("is_pd", function(x, quiet = FALSE, ...) {
+setGeneric("is_pd", function(x, quiet = FALSE) {
   standardGeneric("is_pd")
 })
 
+#' @export
+#' @rdname is_pd
 setMethod("is_pd",
   signature = "matrix",
-  definition = function(x, quiet = FALSE, ...) {
+  definition = function(x, quiet = FALSE) {
     # # Check for symmetry
     # if (!isSymmetric(x)) {
     #   if (!quiet) print("Matrix is not symmetric, and thus, not positive definite.")

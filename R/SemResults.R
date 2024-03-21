@@ -1,6 +1,6 @@
-#' @title SemResults Class
+#' SemResults Class
 #'
-#' @description An S4 class for storing the results of SEM analysis
+#' An S4 class for storing the results of SEM analysis
 #' performed on multiply imputed datasets. Supports `lavaan` and `OpenMx`.
 #'
 #' @slot results A list of SEM model fits for each imputed dataset.
@@ -11,10 +11,11 @@
 #' @slot conf_int Logical; if confidence intervals are included.
 #' @slot conf_level Confidence level for confidence intervals.
 #' @import methods
-#' @exportClass SemResults
+#' @export
 #' @docType class
 #' @name SemResults
-#' @rdname SemResults-class
+#' @rdname SemResults
+#' @aliases  SemResults SemResults-class
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 # Define the SemResults S4 class
 SemResults <- setClass(
