@@ -9,6 +9,7 @@ format:
     theme: cerulean
     toc: true
     number_sections: true
+    code-copy: hover
 execute: 
   eval: true
   message: false
