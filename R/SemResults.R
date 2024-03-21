@@ -155,8 +155,11 @@ setGeneric(
 #'  "
 #' #' sem_data <- set_sem(imputed_data, model)
 #' ## Note that the model is specified as a string
-#' res_results <- run_sem(sem_data, model)
-#' pooled_results <- pool_sem(sem_results)
+#' res_pooled <- imputed_data |>
+#'   set_sem(model) |>
+#'   run_sem() |>
+#'   pool_sem()
+#' res_pooled@tidy_table # Print the pooled results
 #' }
 #'
 #' @export

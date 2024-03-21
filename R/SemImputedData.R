@@ -126,9 +126,10 @@ setGeneric(
 #'  textual =~ x4 + x5 + x6
 #'  speed   =~ x7 + x8 + x9
 #'  "
-#' res_results <- imputed_data |>
+#' res_sem <- imputed_data |>
 #'   set_sem(model) |>
 #'   run_sem()
+#' res_sem@estimate_df # long tidy table of estimates across imputed datasets
 #' }
 setMethod("run_sem", "SemImputedData", function(object, ...) {
   if (!inherits(object@data, "mids")) {
