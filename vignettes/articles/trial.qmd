@@ -70,12 +70,11 @@ fit0@Options$do.fit
 fit_lav@ParTable
 fit_lav@vcov
 parTable(fit_lav)
-parTable("vcov")
 
 lavInspect(fit_lav, what = "data", add.labels = TRUE) |> head()
 lavNames(fit_lav)
 lavInspect(fit_lav, what = "vcov")
-lavTech(fit, what = "vcov", add.labels = TRUE) # This is useful
+lavTech(fit_lav, what = "vcov", add.labels = TRUE) # This is useful
 lav_opts <- lavInspect(fit_lav, what = "options", add.labels = TRUE)
 lav_opts$test
 lav_opts$do.fit
