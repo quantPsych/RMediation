@@ -126,9 +126,9 @@ setGeneric(
 #'  textual =~ x4 + x5 + x6
 #'  speed   =~ x7 + x8 + x9
 #'  "
-#' #' sem_data <- set_sem(imputed_data, model)
-#' ## Note that the model is specified as a string
-#' res_results <- run_sem(sem_data, model)
+#' res_results <- imputed_data |>
+#'   set_sem(model) |>
+#'   run_sem()
 #' }
 setMethod("run_sem", "SemImputedData", function(object, ...) {
   if (!inherits(object@data, "mids")) {
